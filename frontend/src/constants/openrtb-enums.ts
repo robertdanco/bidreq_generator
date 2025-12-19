@@ -260,3 +260,123 @@ export const VIDEO_COMPANION_TYPES = [
   { value: 2, label: 'HTML Resource' },
   { value: 3, label: 'iframe Resource' },
 ] as const;
+
+// ============================================================================
+// AUDIO ENUMS
+// ============================================================================
+
+// Audio MIME types
+export const AUDIO_MIMES = [
+  { value: 'audio/mp4', label: 'MP4 Audio' },
+  { value: 'audio/mpeg', label: 'MP3' },
+  { value: 'audio/ogg', label: 'Ogg Audio' },
+  { value: 'audio/wav', label: 'WAV' },
+  { value: 'audio/aac', label: 'AAC' },
+  { value: 'audio/flac', label: 'FLAC' },
+] as const;
+
+// Audio protocols (DAAST and VAST)
+export const AUDIO_PROTOCOLS = [
+  { value: 1, label: 'VAST 1.0' },
+  { value: 2, label: 'VAST 2.0' },
+  { value: 3, label: 'VAST 3.0' },
+  { value: 4, label: 'VAST 1.0 Wrapper' },
+  { value: 5, label: 'VAST 2.0 Wrapper' },
+  { value: 6, label: 'VAST 3.0 Wrapper' },
+  { value: 7, label: 'VAST 4.0' },
+  { value: 8, label: 'VAST 4.0 Wrapper' },
+  { value: 9, label: 'DAAST 1.0' },
+  { value: 10, label: 'DAAST 1.0 Wrapper' },
+  { value: 11, label: 'VAST 4.1' },
+  { value: 12, label: 'VAST 4.1 Wrapper' },
+] as const;
+
+// Audio feed types
+export const AUDIO_FEED_TYPES = [
+  { value: 1, label: 'Music Service' },
+  { value: 2, label: 'FM/AM Broadcast' },
+  { value: 3, label: 'Podcast' },
+] as const;
+
+// Audio volume normalization modes
+export const AUDIO_VOLUME_NORMALIZATION = [
+  { value: 0, label: 'Unknown' },
+  { value: 1, label: 'Average Volume' },
+  { value: 2, label: 'Peak Volume' },
+  { value: 3, label: 'Loudness' },
+  { value: 4, label: 'Custom' },
+] as const;
+
+// Audio start delay (same as video)
+export const AUDIO_START_DELAY = [
+  { value: 0, label: 'Pre-Roll' },
+  { value: -1, label: 'Generic Mid-Roll' },
+  { value: -2, label: 'Generic Post-Roll' },
+] as const;
+
+// Audio delivery methods
+export const AUDIO_DELIVERY = [
+  { value: 1, label: 'Streaming' },
+  { value: 2, label: 'Progressive' },
+  { value: 3, label: 'Download' },
+] as const;
+
+// ============================================================================
+// EXTENDED ID (EID) ENUMS
+// ============================================================================
+
+// Agent types for EIDs
+export const EID_AGENT_TYPES = [
+  { value: 1, label: 'Device ID' },
+  { value: 2, label: 'Person ID' },
+  { value: 3, label: 'User ID' },
+  { value: 500, label: 'Publisher Generated' },
+  { value: 501, label: 'SSP Generated' },
+  { value: 502, label: 'DSP Generated' },
+  { value: 503, label: 'ID Vendor Generated' },
+] as const;
+
+// Common EID sources
+export const EID_SOURCES = [
+  { value: 'liveramp.com', label: 'LiveRamp' },
+  { value: 'criteo.com', label: 'Criteo' },
+  { value: 'id5-sync.com', label: 'ID5' },
+  { value: 'sharedid.org', label: 'SharedID' },
+  { value: 'uidapi.com', label: 'UID2' },
+  { value: 'pubcid.org', label: 'PubCommon ID' },
+  { value: 'adserver.org', label: 'Trade Desk' },
+] as const;
+
+// ============================================================================
+// CATEGORY TAXONOMY ENUMS
+// ============================================================================
+
+export const CATEGORY_TAXONOMIES = [
+  { value: 1, label: 'IAB Tech Lab Content Category Taxonomy 1.0' },
+  { value: 2, label: 'IAB Tech Lab Content Category Taxonomy 2.0' },
+  { value: 3, label: 'IAB Tech Lab Ad Product Taxonomy 1.0' },
+  { value: 4, label: 'IAB Tech Lab Audience Taxonomy 1.1' },
+  { value: 5, label: 'IAB Tech Lab Content Category Taxonomy 2.1' },
+  { value: 6, label: 'IAB Tech Lab Content Category Taxonomy 2.2' },
+  { value: 7, label: 'IAB Tech Lab Content Category Taxonomy 3.0' },
+] as const;
+
+// ============================================================================
+// POD/SLOT ENUMS
+// ============================================================================
+
+// Pod sequence positions
+export const POD_SEQUENCE = [
+  { value: 0, label: 'Any/Unknown' },
+  { value: 1, label: 'First Pod' },
+  { value: 2, label: 'Last Pod' },
+  { value: -1, label: 'First or Last Pod' },
+] as const;
+
+// Slot in pod positions
+export const SLOT_IN_POD = [
+  { value: 0, label: 'Any/Unknown' },
+  { value: 1, label: 'First Slot' },
+  { value: 2, label: 'Last Slot' },
+  { value: -1, label: 'First or Last Slot' },
+] as const;

@@ -1,6 +1,16 @@
 import React from 'react';
 import { CollapsibleSection } from './common';
-import { SiteSection, DeviceSection, GeoSection, ImpressionSection, AuctionSection } from './sections';
+import {
+  SiteSection,
+  AppSection,
+  DeviceSection,
+  GeoSection,
+  UserSection,
+  RegsSection,
+  SourceSection,
+  ImpressionSection,
+  AuctionSection
+} from './sections';
 import { PresetSelector } from './features';
 import { useBidRequestStore } from '../stores/useBidRequestStore';
 
@@ -10,6 +20,13 @@ const GlobeIcon = () => (
     <circle cx="12" cy="12" r="10" />
     <line x1="2" y1="12" x2="22" y2="12" />
     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+);
+
+const SmartphoneIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+    <line x1="12" y1="18" x2="12.01" y2="18" />
   </svg>
 );
 
@@ -25,6 +42,26 @@ const MapPinIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
     <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const UserIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const ShieldIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const LinkIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
   </svg>
 );
 
@@ -51,6 +88,8 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
   const {
     ui,
     impressions,
+    inventoryType,
+    setInventoryType,
     toggleSection,
     resetSection,
     resetAll,
@@ -67,17 +106,54 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
     <div className="form-container">
       <PresetSelector />
 
+      {/* Inventory Type Toggle */}
+      <div className="inventory-type-toggle">
+        <span className="toggle-label">Inventory Type:</span>
+        <div className="toggle-buttons">
+          <button
+            type="button"
+            className={inventoryType === 'site' ? 'active' : ''}
+            onClick={() => setInventoryType('site')}
+          >
+            <GlobeIcon />
+            Site (Web)
+          </button>
+          <button
+            type="button"
+            className={inventoryType === 'app' ? 'active' : ''}
+            onClick={() => setInventoryType('app')}
+          >
+            <SmartphoneIcon />
+            App (Mobile)
+          </button>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="bid-request-form">
-        <CollapsibleSection
-          id="site"
-          title="Site & Publisher"
-          icon={<GlobeIcon />}
-          isExpanded={isExpanded('site')}
-          onToggle={() => toggleSection('site')}
-          onReset={() => resetSection('site')}
-        >
-          <SiteSection />
-        </CollapsibleSection>
+        {/* Site or App section based on inventoryType */}
+        {inventoryType === 'site' ? (
+          <CollapsibleSection
+            id="site"
+            title="Site & Publisher"
+            icon={<GlobeIcon />}
+            isExpanded={isExpanded('site')}
+            onToggle={() => toggleSection('site')}
+            onReset={() => resetSection('site')}
+          >
+            <SiteSection />
+          </CollapsibleSection>
+        ) : (
+          <CollapsibleSection
+            id="app"
+            title="App & Publisher"
+            icon={<SmartphoneIcon />}
+            isExpanded={isExpanded('app')}
+            onToggle={() => toggleSection('app')}
+            onReset={() => resetSection('app')}
+          >
+            <AppSection />
+          </CollapsibleSection>
+        )}
 
         <CollapsibleSection
           id="device"
@@ -102,6 +178,17 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
         </CollapsibleSection>
 
         <CollapsibleSection
+          id="user"
+          title="User"
+          icon={<UserIcon />}
+          isExpanded={isExpanded('user')}
+          onToggle={() => toggleSection('user')}
+          onReset={() => resetSection('user')}
+        >
+          <UserSection />
+        </CollapsibleSection>
+
+        <CollapsibleSection
           id="impressions"
           title="Impressions"
           icon={<LayersIcon />}
@@ -111,6 +198,28 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
           badge={impressions.length}
         >
           <ImpressionSection />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          id="regs"
+          title="Regulations (Privacy)"
+          icon={<ShieldIcon />}
+          isExpanded={isExpanded('regs')}
+          onToggle={() => toggleSection('regs')}
+          onReset={() => resetSection('regs')}
+        >
+          <RegsSection />
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          id="source"
+          title="Source & Supply Chain"
+          icon={<LinkIcon />}
+          isExpanded={isExpanded('source')}
+          onToggle={() => toggleSection('source')}
+          onReset={() => resetSection('source')}
+        >
+          <SourceSection />
         </CollapsibleSection>
 
         <CollapsibleSection

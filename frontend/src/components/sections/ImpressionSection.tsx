@@ -1,6 +1,7 @@
 import React from 'react';
 import { BannerEditor } from './BannerEditor';
 import { VideoEditor } from './VideoEditor';
+import { AudioEditor } from './AudioEditor';
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
 import './Sections.css';
 
@@ -13,8 +14,8 @@ export const ImpressionSection: React.FC = () => {
     <div className="section-form impressions-section">
       <div className="impressions-header">
         <p className="impressions-info">
-          Configure banner or video ad impressions for this request. Each impression represents
-          an ad slot on the page.
+          Configure banner, video, or audio ad impressions for this request. Each impression represents
+          an ad slot.
         </p>
         {impressions.length < MAX_IMPRESSIONS && (
           <button
@@ -45,15 +46,30 @@ export const ImpressionSection: React.FC = () => {
               >
                 Video
               </button>
+              <button
+                type="button"
+                className={impression.mediaType === 'audio' ? 'active' : ''}
+                onClick={() => setImpressionMediaType(impression.id, 'audio')}
+              >
+                Audio
+              </button>
             </div>
-            {impression.mediaType === 'banner' ? (
+            {impression.mediaType === 'banner' && (
               <BannerEditor
                 impression={impression}
                 index={index}
                 canRemove={impressions.length > 1}
               />
-            ) : (
+            )}
+            {impression.mediaType === 'video' && (
               <VideoEditor
+                impression={impression}
+                index={index}
+                canRemove={impressions.length > 1}
+              />
+            )}
+            {impression.mediaType === 'audio' && (
+              <AudioEditor
                 impression={impression}
                 index={index}
                 canRemove={impressions.length > 1}

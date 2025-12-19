@@ -512,6 +512,8 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
           ...imp,
           banner: { ...defaultBanner, ...imp.banner },
           video: { ...defaultVideo, ...imp.video },
+          audio: { ...defaultAudio, ...imp.audio },
+          pmp: { ...defaultPmp, ...imp.pmp },
         }));
       }
       if (preset.state.auction) {
@@ -717,10 +719,16 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
   toApiPayload: () => {
     const state = get();
 
-    return {
-      domain: state.site.domain,
-      page: state.site.page,
-      site: {
+    // Build base payload
+    const payload: Record<string, unknown> = {
+      domain: state.inventoryType === 'site' ? state.site.domain : state.app.domain,
+      page: state.inventoryType === 'site' ? state.site.page : undefined,
+      inventoryType: state.inventoryType,
+    };
+
+    // Site XOR App (mutually exclusive per OpenRTB 2.6)
+    if (state.inventoryType === 'site') {
+      payload.site = {
         id: state.site.id || undefined,
         name: state.site.name || state.site.domain,
         ref: state.site.ref || undefined,
@@ -735,103 +743,262 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
           domain: state.site.publisher.domain || state.site.domain,
           cat: state.site.publisher.cat.length > 0 ? state.site.publisher.cat : undefined,
         },
-      },
-      device: {
-        ua: state.device.ua,
-        devicetype: state.device.devicetype,
-        ip: state.device.ip || undefined,
-        ipv6: state.device.ipv6 || undefined,
-        make: state.device.make || undefined,
-        model: state.device.model || undefined,
-        os: state.device.os,
-        osv: state.device.osv,
-        hwv: state.device.hwv || undefined,
-        w: state.device.w,
-        h: state.device.h,
-        ppi: state.device.ppi || undefined,
-        pxratio: state.device.pxratio,
-        js: state.device.js ? 1 : 0,
-        language: state.device.language,
-        dnt: state.device.dnt ? 1 : 0,
-        lmt: state.device.lmt ? 1 : 0,
-        connectiontype: state.device.connectiontype || undefined,
-        carrier: state.device.carrier || undefined,
-        mccmnc: state.device.mccmnc || undefined,
-        ifa: state.device.ifa || undefined,
-      },
-      geo: {
-        lat: state.geo.lat ?? undefined,
-        lon: state.geo.lon ?? undefined,
-        type: state.geo.type,
-        accuracy: state.geo.accuracy ?? undefined,
-        country: state.geo.country,
-        region: state.geo.region || undefined,
-        city: state.geo.city,
-        zip: state.geo.zip || undefined,
-        metro: state.geo.metro || undefined,
-        utcoffset: state.geo.utcoffset,
-      },
-      impressions: state.impressions.map((imp) => {
-        const base = {
-          id: imp.id,
-          bidfloor: imp.bidfloor,
-          bidfloorcur: imp.bidfloorcur,
-          secure: imp.secure ? 1 : 0,
-          instl: imp.instl ? 1 : 0,
-          tagid: imp.tagid || undefined,
-        };
+      };
+    } else {
+      payload.app = {
+        id: state.app.id || undefined,
+        name: state.app.name || undefined,
+        bundle: state.app.bundle || undefined,
+        domain: state.app.domain || undefined,
+        storeurl: state.app.storeurl || undefined,
+        ver: state.app.ver || undefined,
+        cat: state.app.cat.length > 0 ? state.app.cat : undefined,
+        sectioncat: state.app.sectioncat.length > 0 ? state.app.sectioncat : undefined,
+        pagecat: state.app.pagecat.length > 0 ? state.app.pagecat : undefined,
+        privacypolicy: state.app.privacypolicy ? 1 : 0,
+        paid: state.app.paid ? 1 : 0,
+        publisher: {
+          id: state.app.publisher.id || undefined,
+          name: state.app.publisher.name || undefined,
+          domain: state.app.publisher.domain || undefined,
+          cat: state.app.publisher.cat.length > 0 ? state.app.publisher.cat : undefined,
+        },
+      };
+    }
 
-        if (imp.mediaType === 'video') {
-          return {
-            ...base,
-            video: {
-              mimes: imp.video.mimes.length > 0 ? imp.video.mimes : undefined,
-              minduration: imp.video.minduration,
-              maxduration: imp.video.maxduration,
-              protocols: imp.video.protocols.length > 0 ? imp.video.protocols : undefined,
-              w: imp.video.w,
-              h: imp.video.h,
-              startdelay: imp.video.startdelay,
-              plcmt: imp.video.plcmt,
-              linearity: imp.video.linearity,
-              skip: imp.video.skip ? 1 : 0,
-              skipmin: imp.video.skipmin || undefined,
-              skipafter: imp.video.skipafter || undefined,
-              playbackmethod: imp.video.playbackmethod.length > 0 ? imp.video.playbackmethod : undefined,
-              delivery: imp.video.delivery.length > 0 ? imp.video.delivery : undefined,
-              pos: imp.video.pos,
-              api: imp.video.api.length > 0 ? imp.video.api : undefined,
-              battr: imp.video.battr.length > 0 ? imp.video.battr : undefined,
-              minbitrate: imp.video.minbitrate ?? undefined,
-              maxbitrate: imp.video.maxbitrate ?? undefined,
-              boxingallowed: imp.video.boxingallowed ? 1 : 0,
-              playbackend: imp.video.playbackend,
-            },
-          };
-        } else {
-          return {
-            ...base,
-            banner: {
-              w: imp.banner.w,
-              h: imp.banner.h,
-              format: imp.banner.format.length > 0 ? imp.banner.format : undefined,
-              pos: imp.banner.pos,
-              api: imp.banner.api.length > 0 ? imp.banner.api : undefined,
-              mimes: imp.banner.mimes.length > 0 ? imp.banner.mimes : undefined,
-              battr: imp.banner.battr.length > 0 ? imp.banner.battr : undefined,
-              btype: imp.banner.btype.length > 0 ? imp.banner.btype : undefined,
-            },
-          };
-        }
-      }),
-      test: state.auction.test ? 1 : 0,
-      at: state.auction.at,
-      tmax: state.auction.tmax,
-      cur: state.auction.cur,
-      allimps: state.auction.allimps ? 1 : 0,
-      bcat: state.auction.bcat.length > 0 ? state.auction.bcat : undefined,
-      badv: state.auction.badv.length > 0 ? state.auction.badv : undefined,
-      bapp: state.auction.bapp.length > 0 ? state.auction.bapp : undefined,
+    // Device
+    payload.device = {
+      ua: state.device.ua,
+      devicetype: state.device.devicetype,
+      ip: state.device.ip || undefined,
+      ipv6: state.device.ipv6 || undefined,
+      make: state.device.make || undefined,
+      model: state.device.model || undefined,
+      os: state.device.os,
+      osv: state.device.osv,
+      hwv: state.device.hwv || undefined,
+      w: state.device.w,
+      h: state.device.h,
+      ppi: state.device.ppi || undefined,
+      pxratio: state.device.pxratio,
+      js: state.device.js ? 1 : 0,
+      language: state.device.language,
+      dnt: state.device.dnt ? 1 : 0,
+      lmt: state.device.lmt ? 1 : 0,
+      connectiontype: state.device.connectiontype || undefined,
+      carrier: state.device.carrier || undefined,
+      mccmnc: state.device.mccmnc || undefined,
+      ifa: state.device.ifa || undefined,
     };
+
+    // Geo
+    payload.geo = {
+      lat: state.geo.lat ?? undefined,
+      lon: state.geo.lon ?? undefined,
+      type: state.geo.type,
+      accuracy: state.geo.accuracy ?? undefined,
+      country: state.geo.country,
+      region: state.geo.region || undefined,
+      city: state.geo.city,
+      zip: state.geo.zip || undefined,
+      metro: state.geo.metro || undefined,
+      utcoffset: state.geo.utcoffset,
+    };
+
+    // User (only include if there's meaningful data)
+    const hasUserData = state.user.id || state.user.buyeruid || state.user.keywords ||
+      state.user.customdata || state.user.consent ||
+      state.user.data.length > 0 || state.user.eids.length > 0;
+    if (hasUserData) {
+      payload.user = {
+        id: state.user.id || undefined,
+        buyeruid: state.user.buyeruid || undefined,
+        keywords: state.user.keywords || undefined,
+        customdata: state.user.customdata || undefined,
+        consent: state.user.consent || undefined,
+        data: state.user.data.length > 0 ? state.user.data.map(d => ({
+          id: d.id || undefined,
+          name: d.name || undefined,
+          segment: d.segment.length > 0 ? d.segment.map(s => ({
+            id: s.id || undefined,
+            name: s.name || undefined,
+            value: s.value || undefined,
+          })) : undefined,
+        })) : undefined,
+        eids: state.user.eids.length > 0 ? state.user.eids.map(e => ({
+          source: e.source,
+          uids: e.uids.map(u => ({
+            id: u.id,
+            atype: u.atype,
+          })),
+        })) : undefined,
+      };
+    }
+
+    // Regs (only include if there's meaningful data)
+    const hasRegsData = state.regs.coppa || state.regs.gdpr || state.regs.us_privacy;
+    if (hasRegsData) {
+      payload.regs = {
+        coppa: state.regs.coppa ? 1 : 0,
+        gdpr: state.regs.gdpr ? 1 : 0,
+        us_privacy: state.regs.us_privacy || undefined,
+      };
+    }
+
+    // Source (only include if there's meaningful data)
+    const hasSourceData = state.source.tid || state.source.pchain || state.source.schain;
+    if (hasSourceData) {
+      payload.source = {
+        fd: state.source.fd || undefined,
+        tid: state.source.tid || undefined,
+        pchain: state.source.pchain || undefined,
+        schain: state.source.schain ? {
+          complete: state.source.schain.complete ? 1 : 0,
+          ver: state.source.schain.ver,
+          nodes: state.source.schain.nodes.map(n => ({
+            asi: n.asi,
+            sid: n.sid,
+            rid: n.rid || undefined,
+            name: n.name || undefined,
+            domain: n.domain || undefined,
+            hp: n.hp ? 1 : 0,
+          })),
+        } : undefined,
+      };
+    }
+
+    // Impressions
+    payload.impressions = state.impressions.map((imp) => {
+      const base: Record<string, unknown> = {
+        id: imp.id,
+        bidfloor: imp.bidfloor,
+        bidfloorcur: imp.bidfloorcur,
+        secure: imp.secure ? 1 : 0,
+        instl: imp.instl ? 1 : 0,
+        tagid: imp.tagid || undefined,
+        displaymanager: imp.displaymanager || undefined,
+        displaymanagerver: imp.displaymanagerver || undefined,
+        rwdd: imp.rwdd ? 1 : undefined,
+        ssai: imp.ssai || undefined,
+        exp: imp.exp ?? undefined,
+      };
+
+      // PMP (only include if enabled)
+      if (imp.pmp.enabled) {
+        base.pmp = {
+          private_auction: imp.pmp.private_auction ? 1 : 0,
+          deals: imp.pmp.deals.length > 0 ? imp.pmp.deals.map(d => ({
+            id: d.id,
+            bidfloor: d.bidfloor,
+            bidfloorcur: d.bidfloorcur,
+            at: d.at,
+            wseat: d.wseat.length > 0 ? d.wseat : undefined,
+            wadomain: d.wadomain.length > 0 ? d.wadomain : undefined,
+          })) : undefined,
+        };
+      }
+
+      if (imp.mediaType === 'video') {
+        return {
+          ...base,
+          video: {
+            mimes: imp.video.mimes.length > 0 ? imp.video.mimes : undefined,
+            minduration: imp.video.minduration,
+            maxduration: imp.video.maxduration,
+            protocols: imp.video.protocols.length > 0 ? imp.video.protocols : undefined,
+            w: imp.video.w,
+            h: imp.video.h,
+            startdelay: imp.video.startdelay,
+            plcmt: imp.video.plcmt,
+            linearity: imp.video.linearity,
+            skip: imp.video.skip ? 1 : 0,
+            skipmin: imp.video.skip && imp.video.skipmin ? imp.video.skipmin : undefined,
+            skipafter: imp.video.skip && imp.video.skipafter ? imp.video.skipafter : undefined,
+            playbackmethod: imp.video.playbackmethod.length > 0 ? imp.video.playbackmethod : undefined,
+            delivery: imp.video.delivery.length > 0 ? imp.video.delivery : undefined,
+            pos: imp.video.pos,
+            api: imp.video.api.length > 0 ? imp.video.api : undefined,
+            battr: imp.video.battr.length > 0 ? imp.video.battr : undefined,
+            minbitrate: imp.video.minbitrate ?? undefined,
+            maxbitrate: imp.video.maxbitrate ?? undefined,
+            boxingallowed: imp.video.boxingallowed ? 1 : 0,
+            playbackend: imp.video.playbackend,
+            // Pod fields
+            poddur: imp.video.poddur ?? undefined,
+            podid: imp.video.podid || undefined,
+            podseq: imp.video.podseq || undefined,
+            slotinpod: imp.video.slotinpod || undefined,
+            mincpmpersec: imp.video.mincpmpersec ?? undefined,
+            maxseq: imp.video.maxseq ?? undefined,
+            maxextended: imp.video.maxextended ?? undefined,
+            rqddurs: imp.video.rqddurs.length > 0 ? imp.video.rqddurs : undefined,
+          },
+        };
+      } else if (imp.mediaType === 'audio') {
+        return {
+          ...base,
+          audio: {
+            mimes: imp.audio.mimes.length > 0 ? imp.audio.mimes : undefined,
+            minduration: imp.audio.minduration,
+            maxduration: imp.audio.maxduration,
+            protocols: imp.audio.protocols.length > 0 ? imp.audio.protocols : undefined,
+            startdelay: imp.audio.startdelay,
+            battr: imp.audio.battr.length > 0 ? imp.audio.battr : undefined,
+            minbitrate: imp.audio.minbitrate ?? undefined,
+            maxbitrate: imp.audio.maxbitrate ?? undefined,
+            delivery: imp.audio.delivery.length > 0 ? imp.audio.delivery : undefined,
+            api: imp.audio.api.length > 0 ? imp.audio.api : undefined,
+            companiontype: imp.audio.companiontype.length > 0 ? imp.audio.companiontype : undefined,
+            feed: imp.audio.feed,
+            stitched: imp.audio.stitched ? 1 : 0,
+            nvol: imp.audio.nvol,
+            // Pod fields
+            poddur: imp.audio.poddur ?? undefined,
+            podid: imp.audio.podid || undefined,
+            podseq: imp.audio.podseq || undefined,
+            slotinpod: imp.audio.slotinpod || undefined,
+            mincpmpersec: imp.audio.mincpmpersec ?? undefined,
+            maxseq: imp.audio.maxseq ?? undefined,
+            maxextended: imp.audio.maxextended ?? undefined,
+            rqddurs: imp.audio.rqddurs.length > 0 ? imp.audio.rqddurs : undefined,
+          },
+        };
+      } else {
+        // Banner
+        return {
+          ...base,
+          banner: {
+            w: imp.banner.w,
+            h: imp.banner.h,
+            format: imp.banner.format.length > 0 ? imp.banner.format : undefined,
+            pos: imp.banner.pos,
+            api: imp.banner.api.length > 0 ? imp.banner.api : undefined,
+            mimes: imp.banner.mimes.length > 0 ? imp.banner.mimes : undefined,
+            battr: imp.banner.battr.length > 0 ? imp.banner.battr : undefined,
+            btype: imp.banner.btype.length > 0 ? imp.banner.btype : undefined,
+          },
+        };
+      }
+    });
+
+    // Auction settings
+    payload.test = state.auction.test ? 1 : 0;
+    payload.at = state.auction.at;
+    payload.tmax = state.auction.tmax;
+    payload.cur = state.auction.cur;
+    payload.allimps = state.auction.allimps ? 1 : 0;
+    if (state.auction.bcat.length > 0) payload.bcat = state.auction.bcat;
+    if (state.auction.badv.length > 0) payload.badv = state.auction.badv;
+    if (state.auction.bapp.length > 0) payload.bapp = state.auction.bapp;
+    // wseat XOR bseat (mutually exclusive)
+    if (state.auction.wseat.length > 0) {
+      payload.wseat = state.auction.wseat;
+    } else if (state.auction.bseat.length > 0) {
+      payload.bseat = state.auction.bseat;
+    }
+    if (state.auction.wlang.length > 0) payload.wlang = state.auction.wlang;
+    if (state.auction.cattax !== 1) payload.cattax = state.auction.cattax;
+
+    return payload;
   },
 }));

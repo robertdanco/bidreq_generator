@@ -656,4 +656,214 @@
   .size-chip-dims {
     font-size: 0.625rem;
   }
+
+  .inventory-type-toggle .toggle-buttons {
+    flex-direction: column;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INVENTORY TYPE TOGGLE (Site/App)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.inventory-type-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.inventory-type-toggle .toggle-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.inventory-type-toggle .toggle-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.inventory-type-toggle .toggle-buttons button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.inventory-type-toggle .toggle-buttons button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.inventory-type-toggle .toggle-buttons button:hover:not(.active) {
+  color: var(--text-secondary);
+  border-color: var(--border-default);
+  background: var(--bg-elevated);
+}
+
+.inventory-type-toggle .toggle-buttons button.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-void);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SUPPLY CHAIN (SCHAIN) NODES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.schain-header {
+  margin-bottom: var(--space-4);
+}
+
+.schain-nodes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.schain-node {
+  padding: var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.node-title {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.remove-node-button {
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--error);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.remove-node-button:hover {
+  background: var(--error);
+  border-color: var(--error);
+  color: var(--bg-void);
+}
+
+.add-node-button {
+  padding: var(--space-3) var(--space-5);
+  min-height: 44px;
+  background: transparent;
+  border: 1px dashed var(--accent-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--accent-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.add-node-button:hover {
+  background: var(--accent-primary-glow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   INFO NOTES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.info-note {
+  padding: var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-3);
+}
+
+.info-note p {
+  margin: 0 0 var(--space-2) 0;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.info-note p:last-child {
+  margin-bottom: 0;
+}
+
+.info-note ul {
+  margin: var(--space-2) 0 0 0;
+  padding-left: var(--space-5);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.info-note li {
+  margin-bottom: var(--space-1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUDIO EDITOR
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.audio-editor {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+
+.audio-editor::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  background: #f59e0b; /* Orange accent for audio */
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+
+.audio-editor:last-child {
+  margin-bottom: 0;
+}
+
+.audio-editor .banner-id {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }

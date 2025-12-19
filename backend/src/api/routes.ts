@@ -64,14 +64,16 @@ router.post('/generate', (req: Request, res: Response) => {
     // Validate impressions if provided
     if (hasImpressions && params.impressions) {
       params.impressions.forEach((imp, index) => {
-        // Each impression must have either banner or video (but not both)
+        // Each impression must have at least one media type
         const hasBanner = !!imp.banner;
         const hasVideo = !!imp.video;
+        const hasAudio = !!imp.audio;
+        const mediaTypeCount = [hasBanner, hasVideo, hasAudio].filter(Boolean).length;
 
-        if (!hasBanner && !hasVideo) {
-          inputErrors.push(`impressions[${index}] must have either a banner or video object`);
-        } else if (hasBanner && hasVideo) {
-          inputErrors.push(`impressions[${index}] cannot have both banner and video objects`);
+        if (mediaTypeCount === 0) {
+          inputErrors.push(`impressions[${index}] must have at least one of: banner, video, or audio`);
+        } else if (mediaTypeCount > 1) {
+          inputErrors.push(`impressions[${index}] should only have one media type (banner, video, or audio)`);
         }
 
         // Validate banner if present
@@ -93,6 +95,16 @@ router.post('/generate', (req: Request, res: Response) => {
             );
           }
         }
+
+        // Validate audio if present
+        if (imp.audio) {
+          // mimes is required for audio
+          if (!imp.audio.mimes || !Array.isArray(imp.audio.mimes) || imp.audio.mimes.length === 0) {
+            inputErrors.push(
+              `impressions[${index}].audio.mimes is required and must be a non-empty array`
+            );
+          }
+        }
       });
     }
 
@@ -102,6 +114,9 @@ router.post('/generate', (req: Request, res: Response) => {
         errors: inputErrors
       });
     }
+
+    // Determine inventory type - if app is provided, use 'app', otherwise 'site'
+    const inventoryType = params.app ? 'app' : (params.inventoryType || 'site');
 
     // Prepare parameters for bid request generation
     const bidRequestParams: BidRequestParams = {
@@ -114,9 +129,14 @@ router.post('/generate', (req: Request, res: Response) => {
       siteName: params.siteName?.trim(),
       publisherName: params.publisherName?.trim(),
       publisherDomain: params.publisherDomain?.trim(),
+      inventoryType,
       site: params.site,
+      app: params.app,
       device: params.device,
       geo: params.geo,
+      user: params.user,
+      regs: params.regs,
+      source: params.source,
       impressions: params.impressions,
       at: params.at,
       tmax: params.tmax,
@@ -124,7 +144,12 @@ router.post('/generate', (req: Request, res: Response) => {
       allimps: params.allimps,
       bcat: params.bcat,
       badv: params.badv,
-      bapp: params.bapp
+      bapp: params.bapp,
+      wseat: params.wseat,
+      bseat: params.bseat,
+      wlang: params.wlang,
+      wlangb: params.wlangb,
+      cattax: params.cattax
     };
 
     // Generate the bid request
