@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import JsonView from '@uiw/react-json-view';
 import { useScrollToChange } from '../hooks/useScrollToChange';
 
@@ -34,9 +34,10 @@ const accessibleDarkTheme = {
 interface JsonDisplayProps {
   data: any;
   warnings?: string[];
+  scrollRef?: React.RefObject<HTMLDivElement>;
 }
 
-const JsonDisplay: React.FC<JsonDisplayProps> = ({ data, warnings }) => {
+const JsonDisplay: React.FC<JsonDisplayProps> = ({ data, warnings, scrollRef }) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [viewMode, setViewMode] = useState<'visual' | 'raw'>('visual');
@@ -138,7 +139,15 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ data, warnings }) => {
         </div>
       )}
 
-      <div className="json-viewer" ref={scrollContainerRef}>
+      <div className="json-viewer" ref={useCallback((node: HTMLDivElement | null) => {
+        // Assign to both refs
+        if (scrollContainerRef) {
+          (scrollContainerRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }
+        if (scrollRef) {
+          (scrollRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }
+      }, [scrollContainerRef, scrollRef])}>
         {viewMode === 'visual' ? (
           <JsonView
             value={data}

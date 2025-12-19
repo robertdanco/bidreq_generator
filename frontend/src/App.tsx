@@ -113,7 +113,7 @@ function App() {
     }
   }, [site, device, geo, impressions, auction, toApiPayload]);
 
-  const resultColumnRef = useRef<HTMLDivElement>(null);
+  const jsonViewerRef = useRef<HTMLDivElement>(null);
 
   const handleSave = () => {
     // Validate before saving
@@ -136,8 +136,8 @@ function App() {
   const handleResetAll = () => {
     // Scroll window to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Scroll result column to top
-    resultColumnRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll JSON viewer to top
+    jsonViewerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -163,7 +163,7 @@ function App() {
             <BidRequestForm onSave={handleSave} onResetAll={handleResetAll} />
           </div>
 
-          <div className="result-column" ref={resultColumnRef}>
+          <div className="result-column">
             <div className="live-preview-badge">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
@@ -180,7 +180,7 @@ function App() {
             )}
 
             {!error && liveBidRequest && (
-              <JsonDisplay data={liveBidRequest} warnings={validationWarnings} />
+              <JsonDisplay data={liveBidRequest} warnings={validationWarnings} scrollRef={jsonViewerRef} />
             )}
 
             <div className="preview-help">
