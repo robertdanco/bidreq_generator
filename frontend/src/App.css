@@ -241,6 +241,9 @@
 }
 
 .reset-all-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
   min-height: 44px;             /* WCAG minimum touch target */
   background: transparent;
@@ -252,6 +255,12 @@
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
+}
+
+.reset-all-button svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
 }
 
 .reset-all-button:hover {
