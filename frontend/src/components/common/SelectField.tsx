@@ -19,6 +19,8 @@ interface SelectFieldProps {
   disabled?: boolean;
   className?: string;
   allowEmpty?: boolean;
+  /** Threshold above which to show "more options" indicator */
+  showMoreThreshold?: number;
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({
@@ -34,6 +36,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   disabled,
   className,
   allowEmpty = false,
+  showMoreThreshold = 6,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -47,6 +50,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   };
 
   const selectClassName = `field-select ${required ? 'required-field' : ''} ${recommended && !required ? 'recommended-field' : ''}`;
+  const hasMoreOptions = options.length > showMoreThreshold;
 
   return (
     <div className={`form-field ${className || ''} ${error ? 'has-error' : ''}`}>
@@ -55,20 +59,29 @@ export const SelectField: React.FC<SelectFieldProps> = ({
         {required && <span className="required-indicator">*</span>}
         {recommended && !required && <span className="recommended-indicator">recommended</span>}
       </label>
-      <select
-        className={selectClassName}
-        value={value}
-        onChange={handleChange}
-        disabled={disabled}
-        required={required}
-      >
-        {allowEmpty && <option value="">{placeholder}</option>}
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="select-wrapper">
+        <select
+          className={selectClassName}
+          value={value}
+          onChange={handleChange}
+          disabled={disabled}
+          required={required}
+        >
+          {allowEmpty && <option value="">{placeholder}</option>}
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {hasMoreOptions && (
+          <span className="options-count-badge" title={`${options.length} options available`}>
+            <span className="options-count-number">{options.length}</span>
+            <span className="options-count-label">options</span>
+            <span className="options-count-indicator" aria-hidden="true">↕</span>
+          </span>
+        )}
+      </div>
       {helpText && !error && <span className="field-help">{helpText}</span>}
       {error && <span className="field-error">{error}</span>}
     </div>

@@ -181,6 +181,13 @@
    SELECT FIELD
    ═══════════════════════════════════════════════════════════════════════════ */
 
+.select-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .field-select {
   cursor: pointer;
   appearance: none;
@@ -193,6 +200,65 @@
 .field-select option {
   background: var(--bg-surface);
   color: var(--text-primary);
+}
+
+/* Options count badge for SelectField */
+.options-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.06) 0%, rgba(168, 85, 247, 0.04) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--text-tertiary);
+  align-self: flex-start;
+  transition: all var(--transition-fast);
+  cursor: default;
+}
+
+.options-count-badge:hover {
+  border-color: var(--accent-primary-dim);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(168, 85, 247, 0.06) 100%);
+}
+
+.options-count-number {
+  font-weight: 600;
+  color: var(--accent-primary);
+  font-size: 0.6875rem;
+}
+
+.options-count-label {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.options-count-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: var(--space-1);
+  background: var(--accent-primary-glow);
+  border-radius: var(--radius-xs);
+  font-size: 0.5rem;
+  color: var(--accent-primary);
+  animation: pulseGlow 2s ease-in-out infinite;
+  will-change: opacity, box-shadow;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.7;
+    box-shadow: 0 0 4px var(--accent-primary-glow);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 8px var(--accent-primary-glow), 0 0 12px rgba(0, 229, 255, 0.15);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -302,6 +368,40 @@
   align-items: center;
 }
 
+.multi-select-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Inline options counter (selected/total) */
+.options-count-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+}
+
+.options-count-selected {
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.options-count-divider {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.options-count-total {
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
 .select-all-button {
   background: transparent;
   border: 1px solid var(--border-subtle);
@@ -322,6 +422,96 @@
   border-color: var(--accent-primary);
   color: var(--accent-primary);
   box-shadow: 0 0 8px var(--accent-primary-glow);
+}
+
+/* Scrollable checkbox container */
+.checkbox-scroll-container {
+  position: relative;
+}
+
+.checkbox-scroll-container.scrollable {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
+}
+
+.checkbox-scroll-container.scrollable .checkbox-grid {
+  padding: var(--space-2);
+  scroll-behavior: smooth;
+}
+
+/* Scroll fade overlays */
+.scroll-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  pointer-events: none;
+  z-index: 2;
+  animation: fadeIn 0.2s ease-out;
+  will-change: opacity;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.scroll-fade-top {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--bg-surface) 0%,
+    rgba(15, 20, 25, 0.95) 40%,
+    transparent 100%
+  );
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.scroll-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--bg-deep) 0%,
+    rgba(8, 12, 20, 0.98) 30%,
+    transparent 100%
+  );
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.scroll-hint-icon {
+  font-size: 0.625rem;
+  color: var(--accent-primary);
+  opacity: 0.8;
+  animation: bounceHint 1.5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.scroll-fade-top .scroll-hint-icon {
+  animation-name: bounceHintUp;
+}
+
+@keyframes bounceHint {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+
+@keyframes bounceHintUp {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-3px); opacity: 1; }
+}
+
+.scroll-hint-text {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .checkbox-grid {
