@@ -116,21 +116,23 @@ export function useScrollToChange(data: unknown) {
       // Keys are rendered with specific styling - we look for the key text
       const targetKey = changedPath[changedPath.length - 1];
 
-      // Fallback: search all text nodes for the key
+      // Search for the key in the JSON viewer
+      // The @uiw/react-json-view library renders keys as plain text (without quotes)
       const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
       let foundElement: Element | null = null;
 
-      // First, try to find exact key match
+      // Search for the key text
       while (walker.nextNode()) {
         const textNode = walker.currentNode;
         const text = textNode.textContent?.trim() || '';
 
-        // Keys are usually rendered with quotes like "keyName"
-        if (text === `"${targetKey}"` || text === targetKey) {
+        // Match the key name (library renders without quotes)
+        if (text === targetKey) {
           const parent = textNode.parentElement;
           if (parent) {
-            // Walk up to find a reasonable container to scroll to
-            foundElement = parent.closest('[style*="line-height"]') || parent;
+            // Walk up to find a suitable container for scrolling
+            // The JSON view uses nested divs with inline styles
+            foundElement = parent.closest('div[style]') || parent;
             break;
           }
         }
@@ -143,14 +145,26 @@ export function useScrollToChange(data: unknown) {
           block: 'center',
         });
 
-        // Add a brief highlight effect using CSS animation
-        const originalBg = (foundElement as HTMLElement).style.backgroundColor;
-        (foundElement as HTMLElement).style.backgroundColor = 'rgba(0, 217, 255, 0.3)';
-        (foundElement as HTMLElement).style.transition = 'background-color 0.3s ease-out';
+        // Add a brief highlight flash effect
+        const el = foundElement as HTMLElement;
+        const originalBg = el.style.backgroundColor;
+        const originalTransition = el.style.transition;
 
-        setTimeout(() => {
-          (foundElement as HTMLElement).style.backgroundColor = originalBg;
-        }, 1000);
+        // Start with bright highlight
+        el.style.transition = 'none';
+        el.style.backgroundColor = 'rgba(0, 217, 255, 0.5)';
+
+        // Fade out smoothly
+        requestAnimationFrame(() => {
+          el.style.transition = 'background-color 1.5s ease-out';
+          setTimeout(() => {
+            el.style.backgroundColor = originalBg;
+            // Clean up transition after animation
+            setTimeout(() => {
+              el.style.transition = originalTransition;
+            }, 1500);
+          }, 100);
+        });
       } else {
         // Fallback: If we can't find the specific element, try using path depth
         // to estimate scroll position - scroll proportionally through the container
