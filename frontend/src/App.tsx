@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import BidRequestForm from './components/BidRequestForm';
 import JsonDisplay from './components/JsonDisplay';
 import { useBidRequestStore } from './stores/useBidRequestStore';
@@ -113,6 +113,8 @@ function App() {
     }
   }, [site, device, geo, impressions, auction, toApiPayload]);
 
+  const resultColumnRef = useRef<HTMLDivElement>(null);
+
   const handleSave = () => {
     // Validate before saving
     if (validationWarnings.length > 0) {
@@ -129,6 +131,13 @@ function App() {
       console.error('Failed to copy:', err);
       alert('Failed to save to clipboard');
     }
+  };
+
+  const handleResetAll = () => {
+    // Scroll window to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll result column to top
+    resultColumnRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -151,10 +160,10 @@ function App() {
       <main className="app-main">
         <div className="content-grid">
           <div className="form-column">
-            <BidRequestForm onSave={handleSave} />
+            <BidRequestForm onSave={handleSave} onResetAll={handleResetAll} />
           </div>
 
-          <div className="result-column">
+          <div className="result-column" ref={resultColumnRef}>
             <div className="live-preview-badge">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />

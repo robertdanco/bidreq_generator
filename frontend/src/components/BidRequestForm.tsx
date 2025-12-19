@@ -82,9 +82,10 @@ const SettingsIcon = () => (
 
 interface BidRequestFormProps {
   onSave: () => void;
+  onResetAll?: () => void;
 }
 
-const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
+const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave, onResetAll }) => {
   const {
     ui,
     impressions,
@@ -100,6 +101,11 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSave();
+  };
+
+  const handleResetAll = () => {
+    resetAll();
+    onResetAll?.();
   };
 
   const isExpanded = (sectionId: string) => ui.expandedSections.includes(sectionId);
@@ -139,7 +145,7 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
         <button
           type="button"
           className="reset-all-button reset-all-top"
-          onClick={resetAll}
+          onClick={handleResetAll}
           title="Reset all form fields to defaults"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -281,7 +287,7 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
           <button
             type="button"
             className="reset-all-button"
-            onClick={resetAll}
+            onClick={handleResetAll}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
