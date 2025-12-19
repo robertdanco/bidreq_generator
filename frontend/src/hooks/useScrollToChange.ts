@@ -89,6 +89,7 @@ function findChangedPath(
 export function useScrollToChange(data: unknown) {
   const prevDataRef = useRef<unknown>(null);
   const changedPathRef = useRef<string[] | null>(null);
+  const lastScrolledPathRef = useRef<string | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Compare current data with previous to find changed path
@@ -109,6 +110,14 @@ export function useScrollToChange(data: unknown) {
     if (!changedPath || changedPath.length === 0 || !container) {
       return;
     }
+
+    // Skip scrolling if we're still editing the same field
+    // This prevents scroll jitter when typing in text fields
+    const pathKey = changedPath.join('.');
+    if (lastScrolledPathRef.current === pathKey) {
+      return;
+    }
+    lastScrolledPathRef.current = pathKey;
 
     // Wait for DOM to update
     requestAnimationFrame(() => {
