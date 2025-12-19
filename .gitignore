@@ -37,6 +37,7 @@ coverage/
 
 # Claude Code (user-specific)
 .claude/
+CLAUDE.md
 
 # Development artifacts (screenshots, etc.)
 .playwright-mcp/
