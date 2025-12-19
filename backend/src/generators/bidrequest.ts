@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { BidRequest, Site, Device, Publisher, Geo, BidRequestParams } from '../types/openrtb';
 import { generateBannerImpression, BannerParams, ImpressionOverrides as BannerImpressionOverrides } from './banner';
 import { generateVideoImpression, VideoParams, ImpressionOverrides as VideoImpressionOverrides } from './video';
+import { generateAudioImpression, AudioParams, ImpressionOverrides as AudioImpressionOverrides } from './audio';
+import { generateApp, generateUser, generateRegs, generateSource, generatePmp } from './context';
 
 /**
  * Generates a Site object for the bid request
@@ -130,9 +132,14 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
     siteName,
     publisherName,
     publisherDomain,
+    inventoryType = 'site',
     site: siteOverrides,
+    app: appOverrides,
     device: deviceOverrides,
     geo: geoOverrides,
+    user: userOverrides,
+    regs: regsOverrides,
+    source: sourceOverrides,
     impressions,
     at,
     tmax,
@@ -140,7 +147,12 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
     allimps,
     bcat,
     badv,
-    bapp
+    bapp,
+    wseat,
+    bseat,
+    wlang,
+    wlangb,
+    cattax
   } = params;
 
   // Generate unique auction ID
@@ -156,8 +168,8 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
 
       if (imp.banner) {
         const bannerParams: BannerParams = {
-          width: imp.banner.w,
-          height: imp.banner.h,
+          width: imp.banner.w ?? 300,
+          height: imp.banner.h ?? 250,
           pos: imp.banner.pos,
           format: imp.banner.format,
           api: imp.banner.api,
@@ -179,7 +191,14 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
           tagid: imp.tagid
         };
 
-        return generateBannerImpression(impId, bannerParams, imp.bidfloor, impOverrides);
+        const impression = generateBannerImpression(impId, bannerParams, imp.bidfloor, impOverrides);
+
+        // Add PMP if provided
+        if (imp.pmp) {
+          impression.pmp = generatePmp(imp.pmp);
+        }
+
+        return impression;
       } else if (imp.video) {
         const videoParams: VideoParams = {
           mimes: imp.video.mimes,
@@ -215,7 +234,57 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
           tagid: imp.tagid
         };
 
-        return generateVideoImpression(impId, videoParams, imp.bidfloor, impOverrides, deviceOverrides?.devicetype);
+        const impression = generateVideoImpression(impId, videoParams, imp.bidfloor, impOverrides, deviceOverrides?.devicetype);
+
+        // Add PMP if provided
+        if (imp.pmp) {
+          impression.pmp = generatePmp(imp.pmp);
+        }
+
+        return impression;
+      } else if (imp.audio) {
+        const audioParams: AudioParams = {
+          mimes: imp.audio.mimes,
+          minduration: imp.audio.minduration,
+          maxduration: imp.audio.maxduration,
+          protocols: imp.audio.protocols,
+          startdelay: imp.audio.startdelay,
+          battr: imp.audio.battr,
+          minbitrate: imp.audio.minbitrate,
+          maxbitrate: imp.audio.maxbitrate,
+          delivery: imp.audio.delivery,
+          api: imp.audio.api,
+          companiontype: imp.audio.companiontype,
+          maxseq: imp.audio.maxseq,
+          feed: imp.audio.feed,
+          stitched: imp.audio.stitched,
+          nvol: imp.audio.nvol,
+          poddur: imp.audio.poddur,
+          rqddurs: imp.audio.rqddurs,
+          podid: imp.audio.podid,
+          podseq: imp.audio.podseq,
+          slotinpod: imp.audio.slotinpod,
+          mincpmpersec: imp.audio.mincpmpersec,
+          maxextended: imp.audio.maxextended
+        };
+
+        const impOverrides: AudioImpressionOverrides = {
+          id: imp.id,
+          bidfloor: imp.bidfloor,
+          bidfloorcur: imp.bidfloorcur,
+          secure: imp.secure,
+          instl: imp.instl,
+          tagid: imp.tagid
+        };
+
+        const impression = generateAudioImpression(impId, audioParams, imp.bidfloor, impOverrides);
+
+        // Add PMP if provided
+        if (imp.pmp) {
+          impression.pmp = generatePmp(imp.pmp);
+        }
+
+        return impression;
       }
 
       // Fallback to banner impression (should not happen with proper validation)
@@ -243,18 +312,6 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
     bidImpressions = [generateBannerImpression('1', bannerParams, bidfloor)];
   }
 
-  // Generate site object
-  const site = generateSite(
-    {
-      domain,
-      page,
-      siteName,
-      publisherName,
-      publisherDomain
-    },
-    siteOverrides
-  );
-
   // Generate device object
   const device = generateDevice(deviceOverrides, geoOverrides);
 
@@ -262,7 +319,6 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
   const bidRequest: BidRequest = {
     id: auctionId,
     imp: bidImpressions,
-    site,
     device,
     test: typeof test === 'boolean' ? (test ? 1 : 0) : test || 0,
     at: at !== undefined ? at : 1,
@@ -270,6 +326,72 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
     cur: cur || ['USD'],
     allimps: allimps !== undefined ? allimps : 0
   };
+
+  // Generate site OR app (mutually exclusive per OpenRTB 2.6)
+  if (inventoryType === 'app') {
+    bidRequest.app = generateApp({
+      bundle: appOverrides?.bundle,
+      name: appOverrides?.name,
+      domain: appOverrides?.domain || domain,
+      storeurl: appOverrides?.storeurl,
+      ver: appOverrides?.ver,
+      privacypolicy: appOverrides?.privacypolicy,
+      paid: appOverrides?.paid,
+      cat: appOverrides?.cat,
+      sectioncat: appOverrides?.sectioncat,
+      pagecat: appOverrides?.pagecat,
+      keywords: appOverrides?.keywords,
+      kwarray: appOverrides?.kwarray,
+      publisher: appOverrides?.publisher,
+      content: appOverrides?.content
+    });
+  } else {
+    // Default to site
+    bidRequest.site = generateSite(
+      {
+        domain,
+        page,
+        siteName,
+        publisherName,
+        publisherDomain
+      },
+      siteOverrides
+    );
+  }
+
+  // Add user if provided
+  if (userOverrides) {
+    bidRequest.user = generateUser({
+      id: userOverrides.id,
+      buyeruid: userOverrides.buyeruid,
+      keywords: userOverrides.keywords,
+      kwarray: userOverrides.kwarray,
+      customdata: userOverrides.customdata,
+      geo: userOverrides.geo,
+      data: userOverrides.data,
+      consent: userOverrides.consent,
+      eids: userOverrides.eids
+    });
+  }
+
+  // Add regs if provided
+  if (regsOverrides) {
+    bidRequest.regs = generateRegs({
+      coppa: regsOverrides.coppa,
+      gdpr: regsOverrides.gdpr,
+      us_privacy: regsOverrides.us_privacy
+    });
+  }
+
+  // Add source if provided
+  if (sourceOverrides) {
+    bidRequest.source = generateSource({
+      fd: sourceOverrides.fd,
+      tid: sourceOverrides.tid,
+      pchain: sourceOverrides.pchain,
+      schain: sourceOverrides.schain
+    });
+  }
 
   // Add optional block lists if provided
   if (bcat && bcat.length > 0) {
@@ -280,6 +402,25 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
   }
   if (bapp && bapp.length > 0) {
     bidRequest.bapp = bapp;
+  }
+
+  // Add seat lists if provided (mutually exclusive per OpenRTB 2.6)
+  if (wseat && wseat.length > 0) {
+    bidRequest.wseat = wseat;
+  } else if (bseat && bseat.length > 0) {
+    bidRequest.bseat = bseat;
+  }
+
+  // Add language preferences if provided (mutually exclusive)
+  if (wlang && wlang.length > 0) {
+    bidRequest.wlang = wlang;
+  } else if (wlangb && wlangb.length > 0) {
+    bidRequest.wlangb = wlangb;
+  }
+
+  // Add category taxonomy if provided
+  if (cattax !== undefined) {
+    bidRequest.cattax = cattax;
   }
 
   return bidRequest;

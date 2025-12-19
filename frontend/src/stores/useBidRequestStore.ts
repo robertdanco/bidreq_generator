@@ -2,13 +2,21 @@ import { create } from 'zustand';
 import type {
   BidRequestFormState,
   SiteFormState,
+  AppFormState,
   DeviceFormState,
   GeoFormState,
+  UserFormState,
+  RegsFormState,
+  SourceFormState,
   ImpressionFormState,
   AuctionFormState,
   BannerFormState,
   VideoFormState,
+  AudioFormState,
+  PmpFormState,
   FormatSize,
+  InventoryType,
+  MediaType,
 } from '../types/formState';
 import { getPresetById } from '../constants/presets';
 
@@ -69,6 +77,50 @@ const defaultGeo: GeoFormState = {
   utcoffset: -480,
 };
 
+const defaultApp: AppFormState = {
+  id: '',
+  name: '',
+  bundle: 'com.example.app',
+  domain: 'example.com',
+  storeurl: '',
+  ver: '',
+  cat: [],
+  sectioncat: [],
+  pagecat: [],
+  privacypolicy: true,
+  paid: false,
+  publisher: {
+    id: '',
+    name: '',
+    domain: '',
+    cat: [],
+  },
+};
+
+const defaultUser: UserFormState = {
+  id: '',
+  buyeruid: '',
+  keywords: '',
+  customdata: '',
+  consent: '',
+  geo: { ...defaultGeo },
+  data: [],
+  eids: [],
+};
+
+const defaultRegs: RegsFormState = {
+  coppa: false,
+  gdpr: false,
+  us_privacy: '',
+};
+
+const defaultSource: SourceFormState = {
+  fd: 0,
+  tid: '',
+  pchain: '',
+  schain: null,
+};
+
 const defaultBanner: BannerFormState = {
   w: 300,
   h: 250,
@@ -102,6 +154,48 @@ const defaultVideo: VideoFormState = {
   maxbitrate: null,
   boxingallowed: true,
   playbackend: 1,
+  // Pod fields
+  poddur: null,
+  podid: '',
+  podseq: 0,
+  slotinpod: 0,
+  mincpmpersec: null,
+  maxseq: null,
+  maxextended: null,
+  rqddurs: [],
+};
+
+const defaultAudio: AudioFormState = {
+  mimes: ['audio/mp4', 'audio/mpeg', 'audio/ogg'],
+  minduration: 0,
+  maxduration: 30,
+  protocols: [2, 3, 9, 10],
+  startdelay: 0,
+  battr: [],
+  minbitrate: null,
+  maxbitrate: null,
+  delivery: [1],
+  api: [7],
+  companiontype: [],
+  // Audio-specific
+  feed: 1,
+  stitched: false,
+  nvol: 0,
+  // Pod fields
+  poddur: null,
+  podid: '',
+  podseq: 0,
+  slotinpod: 0,
+  mincpmpersec: null,
+  maxseq: null,
+  maxextended: null,
+  rqddurs: [],
+};
+
+const defaultPmp: PmpFormState = {
+  enabled: false,
+  private_auction: false,
+  deals: [],
 };
 
 const createDefaultImpression = (id: string = '1'): ImpressionFormState => ({
@@ -109,11 +203,18 @@ const createDefaultImpression = (id: string = '1'): ImpressionFormState => ({
   mediaType: 'banner',
   banner: { ...defaultBanner, format: [{ w: 300, h: 250 }] },
   video: { ...defaultVideo },
+  audio: { ...defaultAudio },
+  pmp: { ...defaultPmp },
   bidfloor: 0.5,
   bidfloorcur: 'USD',
   secure: true,
   instl: false,
   tagid: '',
+  displaymanager: '',
+  displaymanagerver: '',
+  rwdd: false,
+  ssai: 0,
+  exp: null,
 });
 
 const defaultAuction: AuctionFormState = {
@@ -125,6 +226,10 @@ const defaultAuction: AuctionFormState = {
   bcat: [],
   badv: [],
   bapp: [],
+  wseat: [],
+  bseat: [],
+  wlang: [],
+  cattax: 1,
 };
 
 const defaultUI = {
@@ -135,18 +240,30 @@ const defaultUI = {
 };
 
 const getDefaultState = (): BidRequestFormState => ({
+  inventoryType: 'site',
   site: { ...defaultSite, publisher: { ...defaultSite.publisher } },
+  app: { ...defaultApp, publisher: { ...defaultApp.publisher } },
   device: { ...defaultDevice },
   geo: { ...defaultGeo },
+  user: { ...defaultUser, geo: { ...defaultGeo }, data: [], eids: [] },
+  regs: { ...defaultRegs },
+  source: { ...defaultSource },
   impressions: [createDefaultImpression('1')],
-  auction: { ...defaultAuction, cur: ['USD'], bcat: [], badv: [], bapp: [] },
+  auction: { ...defaultAuction, cur: ['USD'], bcat: [], badv: [], bapp: [], wseat: [], bseat: [], wlang: [] },
   ui: { ...defaultUI, expandedSections: ['site', 'impressions'] },
 });
 
 interface BidRequestStore extends BidRequestFormState {
+  // Inventory type actions
+  setInventoryType: (type: InventoryType) => void;
+
   // Site actions
   updateSite: (updates: Partial<SiteFormState>) => void;
   updatePublisher: (updates: Partial<SiteFormState['publisher']>) => void;
+
+  // App actions
+  updateApp: (updates: Partial<AppFormState>) => void;
+  updateAppPublisher: (updates: Partial<AppFormState['publisher']>) => void;
 
   // Device actions
   updateDevice: (updates: Partial<DeviceFormState>) => void;
@@ -154,13 +271,24 @@ interface BidRequestStore extends BidRequestFormState {
   // Geo actions
   updateGeo: (updates: Partial<GeoFormState>) => void;
 
+  // User actions
+  updateUser: (updates: Partial<UserFormState>) => void;
+
+  // Regs actions
+  updateRegs: (updates: Partial<RegsFormState>) => void;
+
+  // Source actions
+  updateSource: (updates: Partial<SourceFormState>) => void;
+
   // Impression actions
   addImpression: () => void;
   removeImpression: (id: string) => void;
   updateImpression: (id: string, updates: Partial<ImpressionFormState>) => void;
   updateBanner: (impId: string, updates: Partial<BannerFormState>) => void;
   updateVideo: (impId: string, updates: Partial<VideoFormState>) => void;
-  setImpressionMediaType: (impId: string, mediaType: 'banner' | 'video') => void;
+  updateAudio: (impId: string, updates: Partial<AudioFormState>) => void;
+  updatePmp: (impId: string, updates: Partial<PmpFormState>) => void;
+  setImpressionMediaType: (impId: string, mediaType: MediaType) => void;
   addFormat: (impId: string, format: FormatSize) => void;
   removeFormat: (impId: string, index: number) => void;
 
@@ -174,7 +302,7 @@ interface BidRequestStore extends BidRequestFormState {
 
   // Preset/Reset actions
   loadPreset: (presetId: string) => void;
-  resetSection: (sectionId: 'site' | 'device' | 'geo' | 'impressions' | 'auction') => void;
+  resetSection: (sectionId: 'site' | 'app' | 'device' | 'geo' | 'user' | 'regs' | 'source' | 'impressions' | 'auction') => void;
   resetAll: () => void;
 
   // Import/Export
@@ -187,6 +315,12 @@ interface BidRequestStore extends BidRequestFormState {
 
 export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
   ...getDefaultState(),
+
+  // Inventory type actions
+  setInventoryType: (type) =>
+    set(() => ({
+      inventoryType: type,
+    })),
 
   // Site actions
   updateSite: (updates) =>
@@ -202,6 +336,20 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       },
     })),
 
+  // App actions
+  updateApp: (updates) =>
+    set((state) => ({
+      app: { ...state.app, ...updates },
+    })),
+
+  updateAppPublisher: (updates) =>
+    set((state) => ({
+      app: {
+        ...state.app,
+        publisher: { ...state.app.publisher, ...updates },
+      },
+    })),
+
   // Device actions
   updateDevice: (updates) =>
     set((state) => ({
@@ -212,6 +360,24 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
   updateGeo: (updates) =>
     set((state) => ({
       geo: { ...state.geo, ...updates },
+    })),
+
+  // User actions
+  updateUser: (updates) =>
+    set((state) => ({
+      user: { ...state.user, ...updates },
+    })),
+
+  // Regs actions
+  updateRegs: (updates) =>
+    set((state) => ({
+      regs: { ...state.regs, ...updates },
+    })),
+
+  // Source actions
+  updateSource: (updates) =>
+    set((state) => ({
+      source: { ...state.source, ...updates },
     })),
 
   // Impression actions
@@ -249,6 +415,24 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       impressions: state.impressions.map((imp) =>
         imp.id === impId
           ? { ...imp, video: { ...imp.video, ...updates } }
+          : imp
+      ),
+    })),
+
+  updateAudio: (impId, updates) =>
+    set((state) => ({
+      impressions: state.impressions.map((imp) =>
+        imp.id === impId
+          ? { ...imp, audio: { ...imp.audio, ...updates } }
+          : imp
+      ),
+    })),
+
+  updatePmp: (impId, updates) =>
+    set((state) => ({
+      impressions: state.impressions.map((imp) =>
+        imp.id === impId
+          ? { ...imp, pmp: { ...imp.pmp, ...updates } }
           : imp
       ),
     })),
@@ -343,14 +527,22 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       switch (sectionId) {
         case 'site':
           return { site: { ...defaultSite, publisher: { ...defaultSite.publisher } } };
+        case 'app':
+          return { app: { ...defaultApp, publisher: { ...defaultApp.publisher } } };
         case 'device':
           return { device: { ...defaultDevice } };
         case 'geo':
           return { geo: { ...defaultGeo } };
+        case 'user':
+          return { user: { ...defaultUser, geo: { ...defaultGeo }, data: [], eids: [] } };
+        case 'regs':
+          return { regs: { ...defaultRegs } };
+        case 'source':
+          return { source: { ...defaultSource } };
         case 'impressions':
           return { impressions: [createDefaultImpression('1')] };
         case 'auction':
-          return { auction: { ...defaultAuction, cur: ['USD'], bcat: [], badv: [], bapp: [] } };
+          return { auction: { ...defaultAuction, cur: ['USD'], bcat: [], badv: [], bapp: [], wseat: [], bseat: [], wlang: [] } };
         default:
           return state;
       }
@@ -409,7 +601,7 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       if (parsed.imp && Array.isArray(parsed.imp)) {
         newState.impressions = parsed.imp.map((imp: any) => ({
           id: imp.id || '1',
-          mediaType: imp.video ? 'video' : 'banner',
+          mediaType: imp.audio ? 'audio' : (imp.video ? 'video' : 'banner'),
           banner: {
             w: imp.banner?.w || 300,
             h: imp.banner?.h || 250,
@@ -422,8 +614,8 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
           },
           video: {
             mimes: imp.video?.mimes || defaultVideo.mimes,
-            minduration: imp.video?.minduration || defaultVideo.minduration,
-            maxduration: imp.video?.maxduration || defaultVideo.maxduration,
+            minduration: imp.video?.minduration ?? defaultVideo.minduration,
+            maxduration: imp.video?.maxduration ?? defaultVideo.maxduration,
             protocols: imp.video?.protocols || defaultVideo.protocols,
             w: imp.video?.w || defaultVideo.w,
             h: imp.video?.h || defaultVideo.h,
@@ -431,23 +623,65 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
             plcmt: imp.video?.plcmt || defaultVideo.plcmt,
             linearity: imp.video?.linearity || defaultVideo.linearity,
             skip: imp.video?.skip === 1,
-            skipmin: imp.video?.skipmin || defaultVideo.skipmin,
-            skipafter: imp.video?.skipafter || defaultVideo.skipafter,
+            skipmin: imp.video?.skipmin ?? defaultVideo.skipmin,
+            skipafter: imp.video?.skipafter ?? defaultVideo.skipafter,
             playbackmethod: imp.video?.playbackmethod || defaultVideo.playbackmethod,
             delivery: imp.video?.delivery || defaultVideo.delivery,
             pos: imp.video?.pos ?? defaultVideo.pos,
             api: imp.video?.api || defaultVideo.api,
             battr: imp.video?.battr || defaultVideo.battr,
-            minbitrate: imp.video?.minbitrate || null,
-            maxbitrate: imp.video?.maxbitrate || null,
-            boxingallowed: imp.video?.boxingallowed === 1 || defaultVideo.boxingallowed,
+            minbitrate: imp.video?.minbitrate ?? null,
+            maxbitrate: imp.video?.maxbitrate ?? null,
+            boxingallowed: imp.video?.boxingallowed !== 0,
             playbackend: imp.video?.playbackend || defaultVideo.playbackend,
+            poddur: imp.video?.poddur ?? null,
+            podid: imp.video?.podid || '',
+            podseq: imp.video?.podseq ?? 0,
+            slotinpod: imp.video?.slotinpod ?? 0,
+            mincpmpersec: imp.video?.mincpmpersec ?? null,
+            maxseq: imp.video?.maxseq ?? null,
+            maxextended: imp.video?.maxextended ?? null,
+            rqddurs: imp.video?.rqddurs || [],
+          },
+          audio: {
+            mimes: imp.audio?.mimes || defaultAudio.mimes,
+            minduration: imp.audio?.minduration ?? defaultAudio.minduration,
+            maxduration: imp.audio?.maxduration ?? defaultAudio.maxduration,
+            protocols: imp.audio?.protocols || defaultAudio.protocols,
+            startdelay: imp.audio?.startdelay ?? defaultAudio.startdelay,
+            battr: imp.audio?.battr || defaultAudio.battr,
+            minbitrate: imp.audio?.minbitrate ?? null,
+            maxbitrate: imp.audio?.maxbitrate ?? null,
+            delivery: imp.audio?.delivery || defaultAudio.delivery,
+            api: imp.audio?.api || defaultAudio.api,
+            companiontype: imp.audio?.companiontype || [],
+            feed: imp.audio?.feed ?? 1,
+            stitched: imp.audio?.stitched === 1,
+            nvol: imp.audio?.nvol ?? 0,
+            poddur: imp.audio?.poddur ?? null,
+            podid: imp.audio?.podid || '',
+            podseq: imp.audio?.podseq ?? 0,
+            slotinpod: imp.audio?.slotinpod ?? 0,
+            mincpmpersec: imp.audio?.mincpmpersec ?? null,
+            maxseq: imp.audio?.maxseq ?? null,
+            maxextended: imp.audio?.maxextended ?? null,
+            rqddurs: imp.audio?.rqddurs || [],
+          },
+          pmp: {
+            enabled: !!imp.pmp,
+            private_auction: imp.pmp?.private_auction === 1,
+            deals: imp.pmp?.deals || [],
           },
           bidfloor: imp.bidfloor || 0,
           bidfloorcur: imp.bidfloorcur || 'USD',
           secure: imp.secure === 1,
           instl: imp.instl === 1,
           tagid: imp.tagid || '',
+          displaymanager: imp.displaymanager || '',
+          displaymanagerver: imp.displaymanagerver || '',
+          rwdd: imp.rwdd === 1,
+          ssai: imp.ssai ?? 0,
+          exp: imp.exp ?? null,
         }));
       }
 
@@ -460,6 +694,10 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
         bcat: parsed.bcat || [],
         badv: parsed.badv || [],
         bapp: parsed.bapp || [],
+        wseat: parsed.wseat || [],
+        bseat: parsed.bseat || [],
+        wlang: parsed.wlang || [],
+        cattax: parsed.cattax || 1,
       };
 
       set(newState);

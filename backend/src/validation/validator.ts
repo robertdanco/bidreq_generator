@@ -3,7 +3,8 @@
  * Validates bid requests for compliance with OpenRTB 2.6 specification
  */
 
-import { BidRequest, Impression } from '../types/openrtb';
+import { BidRequest, Impression, Audio } from '../types/openrtb';
+import { checkMutualExclusion, checkConditionalRequirement, MUTUAL_EXCLUSIONS, CONDITIONAL_REQUIREMENTS } from '../shared/constraints';
 
 export interface ValidationResult {
   valid: boolean;
@@ -42,10 +43,42 @@ export function validateBidRequest(bidRequest: BidRequest): ValidationResult {
     errors.push('BidRequest must have either a site or app object');
   }
 
+  // Check mutual exclusions from shared constraints
+  for (const constraint of MUTUAL_EXCLUSIONS) {
+    const result = checkMutualExclusion(bidRequest, constraint);
+    if (result) {
+      if (constraint.severity === 'error') {
+        errors.push(result.message);
+      } else {
+        warnings.push(result.message);
+      }
+    }
+  }
+
+  // Check conditional requirements from shared constraints
+  for (const constraint of CONDITIONAL_REQUIREMENTS) {
+    const result = checkConditionalRequirement(bidRequest, constraint);
+    if (result) {
+      if (result.missing.length > 0) {
+        errors.push(`${constraint.message}: missing required fields: ${result.missing.join(', ')}`);
+      }
+      if (result.recommended.length > 0) {
+        warnings.push(`${constraint.message}: recommended fields: ${result.recommended.join(', ')}`);
+      }
+    }
+  }
+
   // Validate site if present
   if (bidRequest.site) {
     if (!bidRequest.site.id && !bidRequest.site.page && !bidRequest.site.domain) {
       warnings.push('Site object should have at least id, page, or domain for proper identification');
+    }
+  }
+
+  // Validate app if present
+  if (bidRequest.app) {
+    if (!bidRequest.app.id && !bidRequest.app.bundle && !bidRequest.app.domain) {
+      warnings.push('App object should have at least id, bundle, or domain for proper identification');
     }
   }
 
@@ -102,6 +135,31 @@ function validateImpression(impression: Impression, index: number, warnings?: st
   if (impression.video) {
     const videoErrors = validateVideo(impression.video, index, warnings);
     errors.push(...videoErrors);
+  }
+
+  // Validate audio if present
+  if (impression.audio) {
+    const audioErrors = validateAudio(impression.audio, index, warnings);
+    errors.push(...audioErrors);
+  }
+
+  // Validate PMP if present
+  if (impression.pmp) {
+    if (impression.pmp.private_auction === 1) {
+      if (!impression.pmp.deals || impression.pmp.deals.length === 0) {
+        errors.push(`Impression[${index}].pmp.deals is required when private_auction=1`);
+      }
+    }
+    if (impression.pmp.deals) {
+      impression.pmp.deals.forEach((deal, dealIndex) => {
+        if (!deal.id || deal.id.trim() === '') {
+          errors.push(`Impression[${index}].pmp.deals[${dealIndex}].id is required`);
+        }
+        if (deal.bidfloor !== undefined && deal.bidfloor < 0) {
+          errors.push(`Impression[${index}].pmp.deals[${dealIndex}].bidfloor must be non-negative`);
+        }
+      });
+    }
   }
 
   // Validate bidfloor
@@ -311,6 +369,130 @@ function validateVideo(video: any, impIndex: number, warnings?: string[]): strin
   if (video.minduration === undefined && video.maxduration === undefined && warnings) {
     warnings.push(
       `Impression[${impIndex}].video: No duration constraints specified (minduration/maxduration). Consider adding duration limits.`
+    );
+  }
+
+  return errors;
+}
+
+/**
+ * Validates an Audio object
+ * @param audio - The audio to validate
+ * @param impIndex - The index of the parent impression (for error messages)
+ * @param warnings - Array to collect warning messages
+ * @returns Array of error messages
+ */
+function validateAudio(audio: Audio, impIndex: number, warnings?: string[]): string[] {
+  const errors: string[] = [];
+
+  // Required field: mimes must be a non-empty array
+  if (!audio.mimes || !Array.isArray(audio.mimes)) {
+    errors.push(`Impression[${impIndex}].audio.mimes is required and must be an array`);
+  } else if (audio.mimes.length === 0) {
+    errors.push(`Impression[${impIndex}].audio.mimes must contain at least one MIME type`);
+  }
+
+  // Validate durations if present
+  if (audio.minduration !== undefined) {
+    if (typeof audio.minduration !== 'number' || audio.minduration < 0) {
+      errors.push(`Impression[${impIndex}].audio.minduration must be a non-negative number`);
+    }
+  }
+
+  if (audio.maxduration !== undefined) {
+    if (typeof audio.maxduration !== 'number' || audio.maxduration < 0) {
+      errors.push(`Impression[${impIndex}].audio.maxduration must be a non-negative number`);
+    }
+  }
+
+  if (audio.minduration !== undefined && audio.maxduration !== undefined) {
+    if (audio.minduration > audio.maxduration) {
+      errors.push(`Impression[${impIndex}].audio.minduration cannot be greater than maxduration`);
+    }
+  }
+
+  // Validate mutual exclusion: min/maxduration vs rqddurs
+  if (audio.rqddurs && audio.rqddurs.length > 0) {
+    if (audio.minduration !== undefined || audio.maxduration !== undefined) {
+      errors.push(
+        `Impression[${impIndex}].audio: Use min/maxduration OR rqddurs for exact durations, not both`
+      );
+    }
+  }
+
+  // Validate protocols if present
+  if (audio.protocols !== undefined) {
+    if (!Array.isArray(audio.protocols)) {
+      errors.push(`Impression[${impIndex}].audio.protocols must be an array`);
+    } else {
+      const validProtocols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      audio.protocols.forEach((protocol: number) => {
+        if (!validProtocols.includes(protocol)) {
+          errors.push(
+            `Impression[${impIndex}].audio.protocols contains invalid protocol value: ${protocol}`
+          );
+        }
+      });
+    }
+  }
+
+  // Validate bitrate if present
+  if (audio.minbitrate !== undefined && audio.minbitrate < 0) {
+    errors.push(`Impression[${impIndex}].audio.minbitrate must be non-negative`);
+  }
+
+  if (audio.maxbitrate !== undefined && audio.maxbitrate < 0) {
+    errors.push(`Impression[${impIndex}].audio.maxbitrate must be non-negative`);
+  }
+
+  if (audio.minbitrate !== undefined && audio.maxbitrate !== undefined) {
+    if (audio.minbitrate > audio.maxbitrate) {
+      errors.push(`Impression[${impIndex}].audio.minbitrate cannot be greater than maxbitrate`);
+    }
+  }
+
+  // Validate feed type - 1, 2, or 3
+  if (audio.feed !== undefined) {
+    if (![1, 2, 3].includes(audio.feed)) {
+      errors.push(
+        `Impression[${impIndex}].audio.feed must be 1 (Music), 2 (FM/AM Broadcast), or 3 (Podcast)`
+      );
+    }
+  }
+
+  // Validate stitched - 0 or 1
+  if (audio.stitched !== undefined) {
+    if (![0, 1].includes(audio.stitched)) {
+      errors.push(`Impression[${impIndex}].audio.stitched must be 0 or 1`);
+    }
+  }
+
+  // Validate nvol - 0, 1, 2, or 3
+  if (audio.nvol !== undefined) {
+    if (![0, 1, 2, 3].includes(audio.nvol)) {
+      errors.push(
+        `Impression[${impIndex}].audio.nvol must be 0 (Unknown), 1 (Off), 2 (On), or 3 (Muted by User)`
+      );
+    }
+  }
+
+  // Validate pod fields
+  if (audio.poddur !== undefined) {
+    if (audio.poddur <= 0) {
+      errors.push(`Impression[${impIndex}].audio.poddur must be positive`);
+    }
+    // maxseq is recommended for dynamic pods
+    if (audio.maxseq === undefined && warnings) {
+      warnings.push(
+        `Impression[${impIndex}].audio: maxseq is recommended when poddur is specified for dynamic pods`
+      );
+    }
+  }
+
+  // Warning if no duration specified
+  if (audio.minduration === undefined && audio.maxduration === undefined && !audio.rqddurs && warnings) {
+    warnings.push(
+      `Impression[${impIndex}].audio: No duration constraints specified (minduration/maxduration or rqddurs). Consider adding duration limits.`
     );
   }
 

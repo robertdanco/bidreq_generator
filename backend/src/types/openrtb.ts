@@ -187,6 +187,18 @@ export interface Banner {
   /** Exact height in device independent pixels */
   h?: number;
 
+  /** Minimum width in device independent pixels */
+  wmin?: number;
+
+  /** Maximum width in device independent pixels */
+  wmax?: number;
+
+  /** Minimum height in device independent pixels */
+  hmin?: number;
+
+  /** Maximum height in device independent pixels */
+  hmax?: number;
+
   /** Blocked banner types (1=XHTML Text, 2=XHTML Banner, 3=JavaScript, 4=iframe) */
   btype?: number[];
 
@@ -1181,6 +1193,10 @@ export interface Regs {
   ext?: Record<string, unknown>;
 }
 
+// ============================================================================
+// API INPUT PARAMETERS
+// ============================================================================
+
 /**
  * BidRequestParams - API input parameters for generating bid requests
  * Supports full OpenRTB 2.6 customization while maintaining backward compatibility
@@ -1190,110 +1206,32 @@ export interface BidRequestParams {
   domain: string;
   page: string;
 
+  // Inventory type selector (site or app)
+  inventoryType?: 'site' | 'app';
+
   // Site overrides (all optional - use defaults if not provided)
-  site?: {
-    id?: string;
-    name?: string;
-    ref?: string;
-    cat?: string[];
-    sectioncat?: string[];
-    pagecat?: string[];
-    privacypolicy?: number;
-    mobile?: number;
-    publisher?: {
-      id?: string;
-      name?: string;
-      domain?: string;
-      cat?: string[];
-    };
-  };
+  site?: Partial<Site>;
+
+  // App overrides (all optional)
+  app?: Partial<App>;
 
   // Device overrides (all optional)
-  device?: {
-    ua?: string;
-    devicetype?: number;
-    ip?: string;
-    ipv6?: string;
-    make?: string;
-    model?: string;
-    os?: string;
-    osv?: string;
-    hwv?: string;
-    w?: number;
-    h?: number;
-    ppi?: number;
-    pxratio?: number;
-    js?: number;
-    language?: string;
-    dnt?: number;
-    lmt?: number;
-    connectiontype?: number;
-    carrier?: string;
-    mccmnc?: string;
-    ifa?: string;
-  };
+  device?: Partial<Device>;
 
   // Geo overrides (all optional)
-  geo?: {
-    lat?: number;
-    lon?: number;
-    type?: number;
-    accuracy?: number;
-    country?: string;
-    region?: string;
-    city?: string;
-    zip?: string;
-    metro?: string;
-    utcoffset?: number;
-  };
+  geo?: Partial<Geo>;
+
+  // User overrides (all optional)
+  user?: Partial<User>;
+
+  // Regulations (all optional)
+  regs?: Partial<Regs>;
+
+  // Source/Supply chain (all optional)
+  source?: Partial<Source>;
 
   // Impressions array (replaces width/height for advanced usage)
-  impressions?: Array<{
-    id?: string;
-    banner?: {
-      w: number;
-      h: number;
-      format?: Array<{ w: number; h: number }>;
-      pos?: number;
-      api?: number[];
-      mimes?: string[];
-      battr?: number[];
-      btype?: number[];
-      wmin?: number;
-      hmin?: number;
-      wmax?: number;
-      hmax?: number;
-    };
-    video?: {
-      mimes: string[];
-      minduration?: number;
-      maxduration?: number;
-      protocols?: number[];
-      w?: number;
-      h?: number;
-      startdelay?: number;
-      plcmt?: number;
-      linearity?: number;
-      skip?: number;
-      skipmin?: number;
-      skipafter?: number;
-      playbackmethod?: number[];
-      delivery?: number[];
-      pos?: number;
-      api?: number[];
-      battr?: number[];
-      minbitrate?: number;
-      maxbitrate?: number;
-      boxingallowed?: number;
-      playbackend?: number;
-      companiontype?: number[];
-    };
-    bidfloor?: number;
-    bidfloorcur?: string;
-    secure?: number;
-    instl?: number;
-    tagid?: string;
-  }>;
+  impressions?: ImpressionParams[];
 
   // Legacy single impression (for backward compatibility)
   width?: number;
@@ -1306,12 +1244,66 @@ export interface BidRequestParams {
   tmax?: number;
   cur?: string[];
   allimps?: number;
+  wlang?: string[];
+  wlangb?: string[];
   bcat?: string[];
+  cattax?: number;
   badv?: string[];
   bapp?: string[];
+  wseat?: string[];
+  bseat?: string[];
 
   // Legacy optional fields (for backward compatibility)
   siteName?: string;
   publisherName?: string;
   publisherDomain?: string;
+}
+
+/**
+ * ImpressionParams - Parameters for a single impression
+ */
+export interface ImpressionParams {
+  id?: string;
+
+  // Media types
+  banner?: Partial<Banner> & { w?: number; h?: number };
+  video?: Partial<Video>;
+  audio?: Partial<Audio>;
+
+  // Private marketplace
+  pmp?: PmpParams;
+
+  // Impression settings
+  bidfloor?: number;
+  bidfloorcur?: string;
+  secure?: number;
+  instl?: number;
+  tagid?: string;
+  displaymanager?: string;
+  displaymanagerver?: string;
+  clickbrowser?: number;
+  rwdd?: number;
+  ssai?: number;
+  exp?: number;
+  battr?: number[];
+}
+
+/**
+ * PmpParams - Parameters for private marketplace deals
+ */
+export interface PmpParams {
+  private_auction?: number;
+  deals?: DealParams[];
+}
+
+/**
+ * DealParams - Parameters for a single deal
+ */
+export interface DealParams {
+  id: string;
+  bidfloor?: number;
+  bidfloorcur?: string;
+  at?: number;
+  wseat?: string[];
+  wadomain?: string[];
 }

@@ -1,4 +1,15 @@
 // Form state types for bid request customization
+// OpenRTB 2.6 compliant form state types
+
+// ============================================================================
+// INVENTORY TYPE
+// ============================================================================
+
+export type InventoryType = 'site' | 'app';
+
+// ============================================================================
+// SITE AND APP
+// ============================================================================
 
 export interface SiteFormState {
   id: string;
@@ -20,6 +31,25 @@ export interface PublisherFormState {
   domain: string;
   cat: string[];
 }
+
+export interface AppFormState {
+  id: string;
+  name: string;
+  bundle: string;
+  domain: string;
+  storeurl: string;
+  ver: string;
+  cat: string[];
+  sectioncat: string[];
+  pagecat: string[];
+  privacypolicy: boolean;
+  paid: boolean;
+  publisher: PublisherFormState;
+}
+
+// ============================================================================
+// DEVICE AND GEO
+// ============================================================================
 
 export interface DeviceFormState {
   ua: string;
@@ -57,6 +87,83 @@ export interface GeoFormState {
   metro: string;
   utcoffset: number;
 }
+
+// ============================================================================
+// USER AND DATA
+// ============================================================================
+
+export interface UserFormState {
+  id: string;
+  buyeruid: string;
+  keywords: string;
+  customdata: string;
+  consent: string;
+  geo: GeoFormState;
+  data: DataFormState[];
+  eids: EIDFormState[];
+}
+
+export interface DataFormState {
+  id: string;
+  name: string;
+  segment: SegmentFormState[];
+}
+
+export interface SegmentFormState {
+  id: string;
+  name: string;
+  value: string;
+}
+
+export interface EIDFormState {
+  source: string;
+  uids: UIDFormState[];
+}
+
+export interface UIDFormState {
+  id: string;
+  atype: number;
+}
+
+// ============================================================================
+// REGULATIONS
+// ============================================================================
+
+export interface RegsFormState {
+  coppa: boolean;
+  gdpr: boolean;
+  us_privacy: string;
+}
+
+// ============================================================================
+// SOURCE AND SUPPLY CHAIN
+// ============================================================================
+
+export interface SourceFormState {
+  fd: number;
+  tid: string;
+  pchain: string;
+  schain: SupplyChainFormState | null;
+}
+
+export interface SupplyChainFormState {
+  complete: boolean;
+  ver: string;
+  nodes: SupplyChainNodeFormState[];
+}
+
+export interface SupplyChainNodeFormState {
+  asi: string;
+  sid: string;
+  rid: string;
+  name: string;
+  domain: string;
+  hp: boolean;
+}
+
+// ============================================================================
+// IMPRESSION OBJECTS
+// ============================================================================
 
 export interface FormatSize {
   w: number;
@@ -96,18 +203,82 @@ export interface VideoFormState {
   maxbitrate: number | null;
   boxingallowed: boolean;
   playbackend: number;
+  // Pod fields
+  poddur: number | null;
+  podid: string;
+  podseq: number;
+  slotinpod: number;
+  mincpmpersec: number | null;
+  maxseq: number | null;
+  maxextended: number | null;
+  rqddurs: number[];
 }
+
+export interface AudioFormState {
+  mimes: string[];
+  minduration: number;
+  maxduration: number;
+  protocols: number[];
+  startdelay: number;
+  battr: number[];
+  minbitrate: number | null;
+  maxbitrate: number | null;
+  delivery: number[];
+  api: number[];
+  companiontype: number[];
+  // Audio-specific
+  feed: number;
+  stitched: boolean;
+  nvol: number;
+  // Pod fields
+  poddur: number | null;
+  podid: string;
+  podseq: number;
+  slotinpod: number;
+  mincpmpersec: number | null;
+  maxseq: number | null;
+  maxextended: number | null;
+  rqddurs: number[];
+}
+
+// ============================================================================
+// PRIVATE MARKETPLACE
+// ============================================================================
+
+export interface PmpFormState {
+  enabled: boolean;
+  private_auction: boolean;
+  deals: DealFormState[];
+}
+
+export interface DealFormState {
+  id: string;
+  bidfloor: number;
+  bidfloorcur: string;
+  at: number;
+  wseat: string[];
+  wadomain: string[];
+}
+
+export type MediaType = 'banner' | 'video' | 'audio';
 
 export interface ImpressionFormState {
   id: string;
-  mediaType: 'banner' | 'video';
+  mediaType: MediaType;
   banner: BannerFormState;
   video: VideoFormState;
+  audio: AudioFormState;
+  pmp: PmpFormState;
   bidfloor: number;
   bidfloorcur: string;
   secure: boolean;
   instl: boolean;
   tagid: string;
+  displaymanager: string;
+  displaymanagerver: string;
+  rwdd: boolean;
+  ssai: number;
+  exp: number | null;
 }
 
 export interface AuctionFormState {
@@ -119,6 +290,10 @@ export interface AuctionFormState {
   bcat: string[];
   badv: string[];
   bapp: string[];
+  wseat: string[];
+  bseat: string[];
+  wlang: string[];
+  cattax: number;
 }
 
 export interface UIFormState {
@@ -128,10 +303,20 @@ export interface UIFormState {
   activePreset: string | null;
 }
 
+// ============================================================================
+// ROOT FORM STATE
+// ============================================================================
+
 export interface BidRequestFormState {
+  // Inventory type selector (site XOR app)
+  inventoryType: InventoryType;
   site: SiteFormState;
+  app: AppFormState;
   device: DeviceFormState;
   geo: GeoFormState;
+  user: UserFormState;
+  regs: RegsFormState;
+  source: SourceFormState;
   impressions: ImpressionFormState[];
   auction: AuctionFormState;
   ui: UIFormState;
