@@ -303,6 +303,8 @@ interface BidRequestStore extends BidRequestFormState {
 
   // UI actions
   toggleSection: (sectionId: string) => void;
+  expandAllSections: () => void;
+  collapseAllSections: () => void;
   setJsonEditMode: (enabled: boolean) => void;
   setRawJson: (json: string) => void;
 
@@ -509,6 +511,22 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
         : [...state.ui.expandedSections, sectionId];
       return { ui: { ...state.ui, expandedSections: expanded } };
     }),
+
+  expandAllSections: () =>
+    set((state) => ({
+      ui: {
+        ...state.ui,
+        expandedSections: ['site', 'app', 'device', 'geo', 'user', 'impressions', 'regs', 'source', 'auction'],
+      },
+    })),
+
+  collapseAllSections: () =>
+    set((state) => ({
+      ui: {
+        ...state.ui,
+        expandedSections: [],
+      },
+    })),
 
   setJsonEditMode: (enabled) =>
     set((state) => ({

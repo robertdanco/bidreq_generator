@@ -333,6 +333,8 @@
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   min-height: 500px;
+  height: calc(100vh - 80px - var(--space-6) * 2 - 60px);
+  max-height: calc(100vh - 80px - var(--space-6) * 2 - 60px);
   position: sticky;
   top: calc(80px + var(--space-6));
   display: flex;
@@ -605,6 +607,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .json-header {
@@ -719,7 +724,8 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  max-height: 600px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   position: relative;
 }

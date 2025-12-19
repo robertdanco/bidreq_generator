@@ -177,6 +177,50 @@
   pointer-events: none;
 }
 
+/* Number input specific styling */
+input[type="number"].field-input {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  -moz-appearance: textfield;
+}
+
+/* Custom spinner buttons - Webkit browsers */
+input[type="number"].field-input::-webkit-inner-spin-button,
+input[type="number"].field-input::-webkit-outer-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  opacity: 0;
+  width: 20px;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+/* Show custom spinner on hover */
+input[type="number"].field-input:hover::-webkit-inner-spin-button,
+input[type="number"].field-input:hover::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Number input hover/focus enhancements */
+input[type="number"].field-input:hover {
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  border-color: var(--accent-primary-dim);
+}
+
+input[type="number"].field-input:focus {
+  border-color: var(--accent-primary);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, var(--bg-surface) 100%);
+  box-shadow: 0 0 0 3px var(--accent-primary-glow),
+              0 0 20px rgba(0, 229, 255, 0.15),
+              inset 0 0 0 1px var(--accent-primary-glow);
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    SELECT FIELD
    ═══════════════════════════════════════════════════════════════════════════ */

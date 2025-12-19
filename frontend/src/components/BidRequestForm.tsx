@@ -91,6 +91,8 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
     inventoryType,
     setInventoryType,
     toggleSection,
+    expandAllSections,
+    collapseAllSections,
     resetSection,
     resetAll,
   } = useBidRequestStore();
@@ -105,6 +107,36 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
   return (
     <div className="form-container">
       <PresetSelector />
+
+      {/* Expand/Collapse All and Inventory Type Toggle */}
+      <div className="form-controls-row">
+        <div className="expand-collapse-buttons">
+          <button
+            type="button"
+            className="expand-collapse-button"
+            onClick={expandAllSections}
+            title="Expand all sections"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="7 13 12 18 17 13" />
+              <polyline points="7 6 12 11 17 6" />
+            </svg>
+            Expand All
+          </button>
+          <button
+            type="button"
+            className="expand-collapse-button"
+            onClick={collapseAllSections}
+            title="Collapse all sections"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="17 11 12 6 7 11" />
+              <polyline points="17 18 12 13 7 18" />
+            </svg>
+            Collapse All
+          </button>
+        </div>
+      </div>
 
       {/* Inventory Type Toggle */}
       <div className="inventory-type-toggle">
