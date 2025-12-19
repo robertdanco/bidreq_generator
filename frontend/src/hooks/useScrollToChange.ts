@@ -112,10 +112,6 @@ export function useScrollToChange(data: unknown) {
 
     // Wait for DOM to update
     requestAnimationFrame(() => {
-      // The @uiw/react-json-view library uses specific DOM structure
-      // Keys are rendered with specific styling - we look for the key text
-      const targetKey = changedPath[changedPath.length - 1];
-
       // Search for the key in the JSON viewer
       // The @uiw/react-json-view library renders keys as plain text (without quotes)
       const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
