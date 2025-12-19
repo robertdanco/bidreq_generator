@@ -41,6 +41,7 @@
 .collapsible-section.expanded {
   border-color: var(--border-accent);
   box-shadow: var(--shadow-md), 0 0 30px rgba(0, 229, 255, 0.05);
+  z-index: 10;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -261,8 +262,13 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .section-content {
-  overflow: hidden;
+  overflow: visible;
   transition: max-height var(--transition-slow);
+}
+
+/* Use overflow:hidden only during collapse to enable max-height animation */
+.collapsible-section.collapsed .section-content {
+  overflow: hidden;
 }
 
 .section-content-inner {

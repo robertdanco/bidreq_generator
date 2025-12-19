@@ -739,7 +739,7 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-xl), 0 0 30px rgba(0, 0, 0, 0.3);
-  z-index: 10;
+  z-index: 1000;
   margin-top: var(--space-1);
   max-height: 300px;
   overflow-y: auto;

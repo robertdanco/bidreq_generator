@@ -324,9 +324,28 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
 
   // Inventory type actions
   setInventoryType: (type) =>
-    set(() => ({
-      inventoryType: type,
-    })),
+    set((state) => {
+      const currentExpandedSections = state.ui.expandedSections;
+      let newExpandedSections = currentExpandedSections;
+
+      // When switching inventory type, sync expansion state between 'site' and 'app'
+      if (type === 'site' && currentExpandedSections.includes('app')) {
+        // Switching to Site: if App was expanded, expand Site
+        newExpandedSections = currentExpandedSections
+          .filter((s) => s !== 'app')
+          .concat('site');
+      } else if (type === 'app' && currentExpandedSections.includes('site')) {
+        // Switching to App: if Site was expanded, expand App
+        newExpandedSections = currentExpandedSections
+          .filter((s) => s !== 'site')
+          .concat('app');
+      }
+
+      return {
+        inventoryType: type,
+        ui: { ...state.ui, expandedSections: newExpandedSections },
+      };
+    }),
 
   // Site actions
   updateSite: (updates) =>
