@@ -342,6 +342,11 @@
   margin-bottom: var(--space-4);
 }
 
+/* Add spacing when field-row follows a standalone form-field */
+.form-field + .field-row {
+  margin-top: var(--space-4);
+}
+
 .field-row:last-child {
   margin-bottom: 0;
 }

@@ -3,6 +3,7 @@ import { NumberField, SelectField, MultiSelectField } from '../common';
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
 import { ImpressionHeader } from './ImpressionHeader';
 import { ImpressionCommonFields } from './ImpressionCommonFields';
+import { PmpEditor } from './PmpEditor';
 import {
   IAB_BANNER_SIZES_GROUPED,
   AD_POSITIONS,
@@ -169,6 +170,8 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({
         onBattrChange={(values) => updateBanner(impression.id, { battr: values })}
         tagIdPlaceholder="header-ad, sidebar-1..."
       />
+
+      <PmpEditor impression={impression} />
     </div>
   );
 };

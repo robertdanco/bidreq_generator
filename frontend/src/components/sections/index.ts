@@ -14,3 +14,4 @@ export { AuctionSection } from './AuctionSection';
 // Shared components for media type editors
 export { ImpressionHeader } from './ImpressionHeader';
 export { ImpressionCommonFields } from './ImpressionCommonFields';
+export { PmpEditor } from './PmpEditor';

@@ -391,3 +391,44 @@ export const SLOT_IN_POD = [
 // Maximum number of impressions per bid request
 // OpenRTB spec has no explicit limit, but we cap at 10 for practical UX reasons
 export const MAX_IMPRESSIONS = 10;
+
+// ============================================================================
+// CONTENT ENUMS
+// ============================================================================
+
+// Content context types (OpenRTB 2.6 / AdCOM)
+export const CONTENT_CONTEXTS = [
+  { value: 1, label: 'Video', description: 'Video content (e.g., movie, TV show)' },
+  { value: 2, label: 'Game', description: 'Game content' },
+  { value: 3, label: 'Music', description: 'Music content' },
+  { value: 4, label: 'Application', description: 'Non-game application' },
+  { value: 5, label: 'Text', description: 'Text/written content (e.g., article, blog)' },
+  { value: 6, label: 'Other', description: 'Other content type' },
+  { value: 7, label: 'Unknown', description: 'Unknown content type' },
+] as const;
+
+// Production quality (OpenRTB 2.6 / AdCOM)
+export const PRODUCTION_QUALITY = [
+  { value: 0, label: 'Unknown', description: 'Production quality unknown' },
+  { value: 1, label: 'Professionally Produced', description: 'High-quality production' },
+  { value: 2, label: 'Prosumer', description: 'Semi-professional production' },
+  { value: 3, label: 'User Generated', description: 'User-generated content (UGC)' },
+] as const;
+
+// QAG Media Rating (IQG guidelines)
+export const QAG_MEDIA_RATINGS = [
+  { value: 1, label: 'All Audiences', description: 'Content suitable for all ages' },
+  { value: 2, label: 'Everyone Over 12', description: 'Content suitable for 12+' },
+  { value: 3, label: 'Mature Audiences', description: 'Content for mature audiences only' },
+] as const;
+
+// ============================================================================
+// DEAL/PMP ENUMS
+// ============================================================================
+
+// Deal auction types (OpenRTB 2.6)
+export const DEAL_AUCTION_TYPES = [
+  { value: 1, label: 'First Price', description: 'Winner pays their bid price' },
+  { value: 2, label: 'Second Price', description: 'Winner pays second highest bid + $0.01' },
+  { value: 3, label: 'Fixed Price', description: 'Fixed price deal (Programmatic Guaranteed)' },
+] as const;

@@ -3,6 +3,7 @@ import { NumberField, SelectField, MultiSelectField, ToggleField } from '../comm
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
 import { ImpressionHeader } from './ImpressionHeader';
 import { ImpressionCommonFields } from './ImpressionCommonFields';
+import { PmpEditor } from './PmpEditor';
 import {
   API_FRAMEWORKS,
   AUDIO_MIMES,
@@ -198,6 +199,8 @@ export const AudioEditor: React.FC<AudioEditorProps> = ({
         onBattrChange={(values) => updateAudio(impression.id, { battr: values })}
         tagIdPlaceholder="audio-player-1, pre-roll..."
       />
+
+      <PmpEditor impression={impression} />
     </div>
   );
 };

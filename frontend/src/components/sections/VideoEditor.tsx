@@ -3,6 +3,7 @@ import { NumberField, SelectField, MultiSelectField, ToggleField } from '../comm
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
 import { ImpressionHeader } from './ImpressionHeader';
 import { ImpressionCommonFields } from './ImpressionCommonFields';
+import { PmpEditor } from './PmpEditor';
 import {
   VIDEO_SIZES,
   AD_POSITIONS,
@@ -298,6 +299,8 @@ export const VideoEditor: React.FC<VideoEditorProps> = ({
         onBattrChange={(values) => updateVideo(impression.id, { battr: values })}
         tagIdPlaceholder="video-player-1, pre-roll..."
       />
+
+      <PmpEditor impression={impression} />
     </div>
   );
 };

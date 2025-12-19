@@ -14,6 +14,10 @@ import type {
   VideoFormState,
   AudioFormState,
   PmpFormState,
+  DealFormState,
+  ContentFormState,
+  EIDFormState,
+  DataFormState,
   FormatSize,
   InventoryType,
   MediaType,
@@ -27,6 +31,47 @@ const omitEmpty = <T>(arr: T[]): T[] | undefined => (arr.length > 0 ? arr : unde
 const omitBlank = (str: string): string | undefined => (str ? str : undefined);
 
 // Default values
+const defaultContent: ContentFormState = {
+  id: '',
+  episode: null,
+  title: '',
+  series: '',
+  season: '',
+  artist: '',
+  genre: '',
+  album: '',
+  isrc: '',
+  url: '',
+  cat: [],
+  prodq: 0,
+  context: 0,
+  contentrating: '',
+  userrating: '',
+  qagmediarating: 0,
+  keywords: '',
+  livestream: false,
+  sourcerelationship: 0,
+  len: null,
+  language: '',
+  embeddable: true,
+  producer: {
+    id: '',
+    name: '',
+    domain: '',
+    cat: [],
+  },
+  network: {
+    id: '',
+    name: '',
+    domain: '',
+  },
+  channel: {
+    id: '',
+    name: '',
+    domain: '',
+  },
+};
+
 const defaultSite: SiteFormState = {
   id: '',
   name: '',
@@ -44,6 +89,7 @@ const defaultSite: SiteFormState = {
     domain: '',
     cat: [],
   },
+  content: { ...defaultContent },
 };
 
 const defaultDevice: DeviceFormState = {
@@ -101,6 +147,7 @@ const defaultApp: AppFormState = {
     domain: '',
     cat: [],
   },
+  content: { ...defaultContent },
 };
 
 const defaultUser: UserFormState = {
@@ -266,10 +313,18 @@ interface BidRequestStore extends BidRequestFormState {
   // Site actions
   updateSite: (updates: Partial<SiteFormState>) => void;
   updatePublisher: (updates: Partial<SiteFormState['publisher']>) => void;
+  updateSiteContent: (updates: Partial<ContentFormState>) => void;
+  updateSiteProducer: (updates: Partial<ContentFormState['producer']>) => void;
+  updateSiteNetwork: (updates: Partial<ContentFormState['network']>) => void;
+  updateSiteChannel: (updates: Partial<ContentFormState['channel']>) => void;
 
   // App actions
   updateApp: (updates: Partial<AppFormState>) => void;
   updateAppPublisher: (updates: Partial<AppFormState['publisher']>) => void;
+  updateAppContent: (updates: Partial<ContentFormState>) => void;
+  updateAppProducer: (updates: Partial<ContentFormState['producer']>) => void;
+  updateAppNetwork: (updates: Partial<ContentFormState['network']>) => void;
+  updateAppChannel: (updates: Partial<ContentFormState['channel']>) => void;
 
   // Device actions
   updateDevice: (updates: Partial<DeviceFormState>) => void;
@@ -279,6 +334,18 @@ interface BidRequestStore extends BidRequestFormState {
 
   // User actions
   updateUser: (updates: Partial<UserFormState>) => void;
+  // User EID actions
+  addUserEid: (eid: EIDFormState) => void;
+  removeUserEid: (index: number) => void;
+  updateUserEid: (index: number, updates: Partial<EIDFormState>) => void;
+  addUserEidUid: (eidIndex: number, uid: { id: string; atype: number }) => void;
+  removeUserEidUid: (eidIndex: number, uidIndex: number) => void;
+  // User Data actions
+  addUserData: (data: DataFormState) => void;
+  removeUserData: (index: number) => void;
+  updateUserData: (index: number, updates: Partial<DataFormState>) => void;
+  addUserDataSegment: (dataIndex: number, segment: { id: string; name: string; value: string }) => void;
+  removeUserDataSegment: (dataIndex: number, segmentIndex: number) => void;
 
   // Regs actions
   updateRegs: (updates: Partial<RegsFormState>) => void;
@@ -294,6 +361,9 @@ interface BidRequestStore extends BidRequestFormState {
   updateVideo: (impId: string, updates: Partial<VideoFormState>) => void;
   updateAudio: (impId: string, updates: Partial<AudioFormState>) => void;
   updatePmp: (impId: string, updates: Partial<PmpFormState>) => void;
+  addDeal: (impId: string) => void;
+  removeDeal: (impId: string, dealIndex: number) => void;
+  updateDeal: (impId: string, dealIndex: number, updates: Partial<DealFormState>) => void;
   setImpressionMediaType: (impId: string, mediaType: MediaType) => void;
   addFormat: (impId: string, format: FormatSize) => void;
   removeFormat: (impId: string, index: number) => void;
@@ -363,6 +433,47 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       },
     })),
 
+  updateSiteContent: (updates) =>
+    set((state) => ({
+      site: {
+        ...state.site,
+        content: { ...state.site.content, ...updates },
+      },
+    })),
+
+  updateSiteProducer: (updates) =>
+    set((state) => ({
+      site: {
+        ...state.site,
+        content: {
+          ...state.site.content,
+          producer: { ...state.site.content.producer, ...updates },
+        },
+      },
+    })),
+
+  updateSiteNetwork: (updates) =>
+    set((state) => ({
+      site: {
+        ...state.site,
+        content: {
+          ...state.site.content,
+          network: { ...state.site.content.network, ...updates },
+        },
+      },
+    })),
+
+  updateSiteChannel: (updates) =>
+    set((state) => ({
+      site: {
+        ...state.site,
+        content: {
+          ...state.site.content,
+          channel: { ...state.site.content.channel, ...updates },
+        },
+      },
+    })),
+
   // App actions
   updateApp: (updates) =>
     set((state) => ({
@@ -374,6 +485,47 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       app: {
         ...state.app,
         publisher: { ...state.app.publisher, ...updates },
+      },
+    })),
+
+  updateAppContent: (updates) =>
+    set((state) => ({
+      app: {
+        ...state.app,
+        content: { ...state.app.content, ...updates },
+      },
+    })),
+
+  updateAppProducer: (updates) =>
+    set((state) => ({
+      app: {
+        ...state.app,
+        content: {
+          ...state.app.content,
+          producer: { ...state.app.content.producer, ...updates },
+        },
+      },
+    })),
+
+  updateAppNetwork: (updates) =>
+    set((state) => ({
+      app: {
+        ...state.app,
+        content: {
+          ...state.app.content,
+          network: { ...state.app.content.network, ...updates },
+        },
+      },
+    })),
+
+  updateAppChannel: (updates) =>
+    set((state) => ({
+      app: {
+        ...state.app,
+        content: {
+          ...state.app.content,
+          channel: { ...state.app.content.channel, ...updates },
+        },
       },
     })),
 
@@ -393,6 +545,92 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
   updateUser: (updates) =>
     set((state) => ({
       user: { ...state.user, ...updates },
+    })),
+
+  // User EID actions
+  addUserEid: (eid) =>
+    set((state) => ({
+      user: { ...state.user, eids: [...state.user.eids, eid] },
+    })),
+
+  removeUserEid: (index) =>
+    set((state) => ({
+      user: { ...state.user, eids: state.user.eids.filter((_, i) => i !== index) },
+    })),
+
+  updateUserEid: (index, updates) =>
+    set((state) => ({
+      user: {
+        ...state.user,
+        eids: state.user.eids.map((eid, i) =>
+          i === index ? { ...eid, ...updates } : eid
+        ),
+      },
+    })),
+
+  addUserEidUid: (eidIndex, uid) =>
+    set((state) => ({
+      user: {
+        ...state.user,
+        eids: state.user.eids.map((eid, i) =>
+          i === eidIndex ? { ...eid, uids: [...eid.uids, uid] } : eid
+        ),
+      },
+    })),
+
+  removeUserEidUid: (eidIndex, uidIndex) =>
+    set((state) => ({
+      user: {
+        ...state.user,
+        eids: state.user.eids.map((eid, i) =>
+          i === eidIndex
+            ? { ...eid, uids: eid.uids.filter((_, j) => j !== uidIndex) }
+            : eid
+        ),
+      },
+    })),
+
+  // User Data actions
+  addUserData: (data) =>
+    set((state) => ({
+      user: { ...state.user, data: [...state.user.data, data] },
+    })),
+
+  removeUserData: (index) =>
+    set((state) => ({
+      user: { ...state.user, data: state.user.data.filter((_, i) => i !== index) },
+    })),
+
+  updateUserData: (index, updates) =>
+    set((state) => ({
+      user: {
+        ...state.user,
+        data: state.user.data.map((d, i) =>
+          i === index ? { ...d, ...updates } : d
+        ),
+      },
+    })),
+
+  addUserDataSegment: (dataIndex, segment) =>
+    set((state) => ({
+      user: {
+        ...state.user,
+        data: state.user.data.map((d, i) =>
+          i === dataIndex ? { ...d, segment: [...d.segment, segment] } : d
+        ),
+      },
+    })),
+
+  removeUserDataSegment: (dataIndex, segmentIndex) =>
+    set((state) => ({
+      user: {
+        ...state.user,
+        data: state.user.data.map((d, i) =>
+          i === dataIndex
+            ? { ...d, segment: d.segment.filter((_, j) => j !== segmentIndex) }
+            : d
+        ),
+      },
     })),
 
   // Regs actions
@@ -462,6 +700,63 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       impressions: state.impressions.map((imp) =>
         imp.id === impId
           ? { ...imp, pmp: { ...imp.pmp, ...updates } }
+          : imp
+      ),
+    })),
+
+  addDeal: (impId) =>
+    set((state) => ({
+      impressions: state.impressions.map((imp) =>
+        imp.id === impId
+          ? {
+              ...imp,
+              pmp: {
+                ...imp.pmp,
+                deals: [
+                  ...imp.pmp.deals,
+                  {
+                    id: `deal-${Date.now()}`,
+                    bidfloor: 0,
+                    bidfloorcur: 'USD',
+                    at: 1,
+                    wseat: [],
+                    wadomain: [],
+                  },
+                ],
+              },
+            }
+          : imp
+      ),
+    })),
+
+  removeDeal: (impId, dealIndex) =>
+    set((state) => ({
+      impressions: state.impressions.map((imp) =>
+        imp.id === impId
+          ? {
+              ...imp,
+              pmp: {
+                ...imp.pmp,
+                deals: imp.pmp.deals.filter((_, i) => i !== dealIndex),
+              },
+            }
+          : imp
+      ),
+    })),
+
+  updateDeal: (impId, dealIndex, updates) =>
+    set((state) => ({
+      impressions: state.impressions.map((imp) =>
+        imp.id === impId
+          ? {
+              ...imp,
+              pmp: {
+                ...imp.pmp,
+                deals: imp.pmp.deals.map((deal, i) =>
+                  i === dealIndex ? { ...deal, ...updates } : deal
+                ),
+              },
+            }
           : imp
       ),
     })),

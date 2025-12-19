@@ -41,3 +41,6 @@ CLAUDE.md
 
 # Development artifacts (screenshots, etc.)
 .playwright-mcp/
+
+# Reference documentation (local only)
+docs/reference/

@@ -23,6 +23,7 @@ export interface SiteFormState {
   privacypolicy: boolean;
   mobile: boolean;
   publisher: PublisherFormState;
+  content: ContentFormState;
 }
 
 export interface PublisherFormState {
@@ -45,6 +46,58 @@ export interface AppFormState {
   privacypolicy: boolean;
   paid: boolean;
   publisher: PublisherFormState;
+  content: ContentFormState;
+}
+
+// ============================================================================
+// CONTENT (for Site/App)
+// ============================================================================
+
+export interface ContentFormState {
+  id: string;
+  episode: number | null;
+  title: string;
+  series: string;
+  season: string;
+  artist: string;
+  genre: string;
+  album: string;
+  isrc: string;
+  url: string;
+  cat: string[];
+  prodq: number;
+  context: number;
+  contentrating: string;
+  userrating: string;
+  qagmediarating: number;
+  keywords: string;
+  livestream: boolean;
+  sourcerelationship: number;
+  len: number | null;
+  language: string;
+  embeddable: boolean;
+  producer: ProducerFormState;
+  network: NetworkFormState;
+  channel: ChannelFormState;
+}
+
+export interface ProducerFormState {
+  id: string;
+  name: string;
+  domain: string;
+  cat: string[];
+}
+
+export interface NetworkFormState {
+  id: string;
+  name: string;
+  domain: string;
+}
+
+export interface ChannelFormState {
+  id: string;
+  name: string;
+  domain: string;
 }
 
 // ============================================================================
