@@ -1,11 +1,13 @@
 # OpenRTB 2.6 Bid Request Generator
 
-Generate valid OpenRTB 2.6 **banner and video** bid requests for ad tech testing and development.
+Generate valid OpenRTB 2.6 bid requests for ad tech testing and development.
 
 ## Features
 
 - **Live Preview** - JSON updates in real-time as you edit the form
-- **Banner & Video** - Full OpenRTB 2.6 support for both media types
+- **Full Media Support** - Banner, Video, and Audio impressions
+- **Site & App Inventory** - Toggle between web and mobile app inventory types
+- **Complete Context** - User, Regs (GDPR/COPPA), Source (supply chain), and PMP deals
 - **Visual Indicators** - Required (red) and recommended (orange) field markers
 - **Save to Clipboard** - One-click copy of generated JSON
 
@@ -72,9 +74,52 @@ curl -X POST http://localhost:3001/api/generate \
   }'
 ```
 
+### Audio Bid Request
+
+```bash
+curl -X POST http://localhost:3001/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "domain": "example.com",
+    "page": "https://example.com/podcast.html",
+    "impressions": [{
+      "id": "1",
+      "audio": {
+        "mimes": ["audio/mp4", "audio/mpeg"],
+        "minduration": 15,
+        "maxduration": 30,
+        "protocols": [2, 3, 9, 10],
+        "startdelay": 0
+      },
+      "bidfloor": 1.5
+    }]
+  }'
+```
+
+### App Inventory Request
+
+```bash
+curl -X POST http://localhost:3001/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "domain": "example.com",
+    "app": {
+      "id": "app123",
+      "name": "My App",
+      "bundle": "com.example.myapp",
+      "storeurl": "https://play.google.com/store/apps/details?id=com.example.myapp"
+    },
+    "impressions": [{
+      "id": "1",
+      "banner": { "w": 320, "h": 50 },
+      "bidfloor": 0.5
+    }]
+  }'
+```
+
 ### Extended Options
 
-Custom device/geo, multiple impressions, and block lists are supported. See `backend/EXAMPLES.md` for full API examples.
+Custom device/geo, user data, regulatory compliance (GDPR/COPPA), supply chain (schain), and PMP deals are supported. See `backend/EXAMPLES.md` for full API examples.
 
 ### Other Endpoints
 

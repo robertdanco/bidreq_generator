@@ -4,12 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OpenRTB 2.6 Bid Request Generator - a full-stack tool for generating and validating OpenRTB 2.6 **banner and video** bid requests for ad tech testing and development.
+OpenRTB 2.6 Bid Request Generator - a full-stack tool for generating and validating OpenRTB 2.6 bid requests for ad tech testing and development.
 
 ### Key Features
 
 - **Live Preview**: JSON bid request updates in real-time as you edit the form
-- **Banner & Video Support**: Full OpenRTB 2.6 compliance for both media types
+- **Full Media Type Support**: Banner, Video, and Audio impressions with OpenRTB 2.6 compliance
+- **Site & App Inventory**: Toggle between web (Site) and mobile app (App) inventory types
+- **Complete Context Objects**: User, Regs (GDPR/COPPA/US Privacy), Source (supply chain), and PMP (private marketplace deals)
 - **Visual Field Indicators**: Required fields (red asterisk), recommended fields (orange badge)
 - **Save to Clipboard**: Copy the generated JSON directly to clipboard
 
@@ -45,11 +47,13 @@ cd frontend && npm run dev       # Frontend at http://localhost:3000
 
 - **server.ts**: Express app entry point (port 3001)
 - **api/routes.ts**: API endpoints (`POST /api/generate`, `GET /api/example`, `GET /api/health`)
-- **types/openrtb.ts**: Full OpenRTB 2.6 TypeScript interfaces (`BidRequest`, `Impression`, `Banner`, `Video`, `Site`, `Device`, `Geo`, `BidRequestParams`)
+- **types/openrtb.ts**: Full OpenRTB 2.6 TypeScript interfaces (`BidRequest`, `Impression`, `Banner`, `Video`, `Audio`, `Site`, `App`, `Device`, `Geo`, `User`, `Regs`, `Source`, `Pmp`, `BidRequestParams`)
 - **generators/bidrequest.ts**: Core bid request generation logic
 - **generators/banner.ts**: Banner impression generation
 - **generators/video.ts**: Video impression generation with device-aware defaults
-- **validation/validator.ts**: OpenRTB 2.6 compliance validation with `validateBidRequest()` (supports both banner and video)
+- **generators/audio.ts**: Audio impression generation with pod support
+- **generators/context.ts**: User, Regs, Source, and PMP object generation
+- **validation/validator.ts**: OpenRTB 2.6 compliance validation with `validateBidRequest()` (supports banner, video, and audio)
 
 ### Frontend (`frontend/src/`)
 
@@ -59,9 +63,17 @@ cd frontend && npm run dev       # Frontend at http://localhost:3000
 - **components/JsonDisplay.tsx**: JSON output display using `@uiw/react-json-view`
 - **components/sections/BannerEditor.tsx**: Banner impression configuration
 - **components/sections/VideoEditor.tsx**: Video impression configuration with full OpenRTB 2.6 video fields
-- **components/sections/ImpressionSection.tsx**: Banner/Video toggle and impression management
-- **types/formState.ts**: Form-specific TypeScript interfaces (includes `VideoFormState`)
-- **constants/openrtb-enums.ts**: OpenRTB enum constants for both banner and video
+- **components/sections/AudioEditor.tsx**: Audio impression configuration with pod/streaming support
+- **components/sections/ImpressionSection.tsx**: Banner/Video/Audio toggle and impression management
+- **components/sections/SiteSection.tsx**: Web inventory configuration
+- **components/sections/AppSection.tsx**: Mobile app inventory configuration
+- **components/sections/UserSection.tsx**: User data and extended IDs (EIDs) configuration
+- **components/sections/RegsSection.tsx**: Regulatory compliance (GDPR, COPPA, US Privacy)
+- **components/sections/SourceSection.tsx**: Supply chain (schain) configuration
+- **components/sections/ImpressionHeader.tsx**: Shared header component for all media editors
+- **components/sections/ImpressionCommonFields.tsx**: Shared impression-level fields (bid floor, blocked attributes, etc.)
+- **types/formState.ts**: Form-specific TypeScript interfaces (includes `VideoFormState`, `AudioFormState`, `UserFormState`, etc.)
+- **constants/openrtb-enums.ts**: OpenRTB enum constants for all media types and context objects
 - **constants/presets.ts**: Device/scenario presets
 
 ### Data Flow (Live Preview Mode)
@@ -76,9 +88,12 @@ cd frontend && npm run dev       # Frontend at http://localhost:3000
 
 - Form state uses boolean values (e.g., `secure: true`), API uses OpenRTB integers (`secure: 1`)
 - `BidRequestParams` supports both legacy mode (width/height) and full impressions array
-- Impressions have `mediaType: 'banner' | 'video'` - only the active type is included in output
-- Video impressions require `mimes` field (OpenRTB 2.6 requirement)
+- Impressions have `mediaType: 'banner' | 'video' | 'audio'` - only the active type is included in output
+- Video and Audio impressions require `mimes` field (OpenRTB 2.6 requirement)
+- Site and App are mutually exclusive per OpenRTB 2.6 spec
+- Supply chain (schain) nodes require `asi` and `sid` fields - invalid nodes are filtered out
 - Validation returns `{ valid, errors, warnings }` - warnings are non-fatal
+- Helper utilities `omitEmpty()` and `omitBlank()` clean up payload by converting empty arrays/strings to undefined
 
 ## API Quick Reference
 
