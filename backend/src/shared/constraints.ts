@@ -94,42 +94,8 @@ export const MUTUAL_EXCLUSIONS: MutualExclusion[] = [
     message: 'Use min/max duration OR rqddurs for exact durations, not both',
     severity: 'error',
   },
-  {
-    type: 'mutually_exclusive',
-    fields: ['site.keywords', 'site.kwarray'],
-    message: 'Use keywords string OR kwarray, not both',
-    severity: 'warning',
-  },
-  {
-    type: 'mutually_exclusive',
-    fields: ['app.keywords', 'app.kwarray'],
-    message: 'Use keywords string OR kwarray, not both',
-    severity: 'warning',
-  },
-  {
-    type: 'mutually_exclusive',
-    fields: ['user.keywords', 'user.kwarray'],
-    message: 'Use keywords string OR kwarray, not both',
-    severity: 'warning',
-  },
-  {
-    type: 'mutually_exclusive',
-    fields: ['content.keywords', 'content.kwarray'],
-    message: 'Use keywords string OR kwarray, not both',
-    severity: 'warning',
-  },
-  {
-    type: 'mutually_exclusive',
-    fields: ['device.language', 'device.langb'],
-    message: 'Use language OR langb, not both',
-    severity: 'warning',
-  },
-  {
-    type: 'mutually_exclusive',
-    fields: ['content.language', 'content.langb'],
-    message: 'Use language OR langb, not both',
-    severity: 'warning',
-  },
+  // Note: site/app/user/device/content keyword and language mutual exclusions
+  // are handled by SCOPED_MUTUAL_EXCLUSIONS which check within nested objects
 ];
 
 /**
@@ -255,13 +221,8 @@ export const CONDITIONAL_REQUIREMENTS: ConditionalRequirement[] = [
     recommends: ['audio.mincpmpersec'],
     message: 'maxseq required and mincpmpersec recommended for dynamic pods',
   },
-  {
-    type: 'conditional',
-    trigger: { field: 'geo.type', condition: 'equals', value: 1 },
-    requires: [],
-    recommends: ['geo.accuracy'],
-    message: 'accuracy recommended for GPS-sourced location (type=1)',
-  },
+  // Note: geo.type conditional is handled by SCOPED_CONDITIONAL_REQUIREMENTS
+  // which checks within device.geo and user.geo nested objects
   {
     type: 'conditional',
     trigger: { field: 'device.sua', condition: 'exists', value: true },
@@ -576,7 +537,7 @@ export function checkDeprecatedFields(
   for (const deprecated of deprecatedFields) {
     if (fieldHasValue(obj, deprecated.field)) {
       let msg = `${deprecated.field} is deprecated. ${deprecated.message}`;
-      if (deprecated.replacement) {
+      if (deprecated.replacement !== null) {
         msg += ` Use ${deprecated.replacement} instead.`;
       }
       warnings.push({ field: deprecated.field, message: msg });
