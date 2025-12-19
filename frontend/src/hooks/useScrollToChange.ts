@@ -130,9 +130,9 @@ export function useScrollToChange(data: unknown) {
         if (text === targetKey) {
           const parent = textNode.parentElement;
           if (parent) {
-            // Walk up to find a suitable container for scrolling
-            // The JSON view uses nested divs with inline styles
-            foundElement = parent.closest('div[style]') || parent;
+            // Use the immediate parent element (the key span) for highlighting
+            // This highlights just the key-value row instead of a larger container
+            foundElement = parent;
             break;
           }
         }
