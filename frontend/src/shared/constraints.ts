@@ -54,6 +54,15 @@ export interface MutualExclusion {
   severity: 'error' | 'warning';
 }
 
+/**
+ * Scoped constraint - applies to a specific nested object path
+ */
+export interface ScopedConstraint {
+  scope: string;  // Path to object (e.g., 'site', 'device.geo', '' for root)
+}
+
+export type ScopedMutualExclusion = MutualExclusion & ScopedConstraint;
+
 export const MUTUAL_EXCLUSIONS: MutualExclusion[] = [
   {
     type: 'mutually_exclusive',
@@ -123,6 +132,75 @@ export const MUTUAL_EXCLUSIONS: MutualExclusion[] = [
   },
 ];
 
+/**
+ * Scoped mutual exclusions - constraints that apply to specific nested objects.
+ * These use relative field paths within their scope.
+ */
+export const SCOPED_MUTUAL_EXCLUSIONS: ScopedMutualExclusion[] = [
+  // Site-scoped
+  {
+    type: 'mutually_exclusive',
+    scope: 'site',
+    fields: ['keywords', 'kwarray'],
+    message: 'Use keywords string OR kwarray, not both',
+    severity: 'warning',
+  },
+  // App-scoped
+  {
+    type: 'mutually_exclusive',
+    scope: 'app',
+    fields: ['keywords', 'kwarray'],
+    message: 'Use keywords string OR kwarray, not both',
+    severity: 'warning',
+  },
+  // User-scoped
+  {
+    type: 'mutually_exclusive',
+    scope: 'user',
+    fields: ['keywords', 'kwarray'],
+    message: 'Use keywords string OR kwarray, not both',
+    severity: 'warning',
+  },
+  // Site content-scoped
+  {
+    type: 'mutually_exclusive',
+    scope: 'site.content',
+    fields: ['keywords', 'kwarray'],
+    message: 'Use keywords string OR kwarray, not both',
+    severity: 'warning',
+  },
+  {
+    type: 'mutually_exclusive',
+    scope: 'site.content',
+    fields: ['language', 'langb'],
+    message: 'Use language OR langb, not both',
+    severity: 'warning',
+  },
+  // App content-scoped
+  {
+    type: 'mutually_exclusive',
+    scope: 'app.content',
+    fields: ['keywords', 'kwarray'],
+    message: 'Use keywords string OR kwarray, not both',
+    severity: 'warning',
+  },
+  {
+    type: 'mutually_exclusive',
+    scope: 'app.content',
+    fields: ['language', 'langb'],
+    message: 'Use language OR langb, not both',
+    severity: 'warning',
+  },
+  // Device-scoped
+  {
+    type: 'mutually_exclusive',
+    scope: 'device',
+    fields: ['language', 'langb'],
+    message: 'Use language OR langb, not both',
+    severity: 'warning',
+  },
+];
+
 // ============================================================================
 // CONDITIONAL REQUIREMENTS
 // ============================================================================
@@ -139,19 +217,14 @@ export interface ConditionalRequirement {
   message: string;
 }
 
+export type ScopedConditionalRequirement = ConditionalRequirement & ScopedConstraint;
+
 export const CONDITIONAL_REQUIREMENTS: ConditionalRequirement[] = [
   {
     type: 'conditional',
     trigger: { field: 'video.skip', condition: 'equals', value: 1 },
     requires: [],
     recommends: ['video.skipmin', 'video.skipafter'],
-    message: 'skipmin and skipafter are relevant when skip=1',
-  },
-  {
-    type: 'conditional',
-    trigger: { field: 'audio.skip', condition: 'equals', value: 1 },
-    requires: [],
-    recommends: ['audio.skipmin', 'audio.skipafter'],
     message: 'skipmin and skipafter are relevant when skip=1',
   },
   {
@@ -195,6 +268,31 @@ export const CONDITIONAL_REQUIREMENTS: ConditionalRequirement[] = [
     requires: [],
     recommends: [],
     message: 'Prefer sua over ua when Client Hints available (ua may be frozen)',
+  },
+];
+
+/**
+ * Scoped conditional requirements - constraints that apply to specific nested objects.
+ * These use relative field paths within their scope.
+ */
+export const SCOPED_CONDITIONAL_REQUIREMENTS: ScopedConditionalRequirement[] = [
+  // Device geo-scoped
+  {
+    type: 'conditional',
+    scope: 'device.geo',
+    trigger: { field: 'type', condition: 'equals', value: 1 },
+    requires: [],
+    recommends: ['accuracy'],
+    message: 'accuracy recommended for GPS-sourced location (type=1)',
+  },
+  // User geo-scoped
+  {
+    type: 'conditional',
+    scope: 'user.geo',
+    trigger: { field: 'type', condition: 'equals', value: 1 },
+    requires: [],
+    recommends: ['accuracy'],
+    message: 'accuracy recommended for GPS-sourced location (type=1)',
   },
 ];
 
@@ -375,4 +473,115 @@ export function checkConditionalRequirement(
   }
 
   return null;
+}
+
+/**
+ * Check mutual exclusion within a scoped object.
+ * Returns null if valid, or error with full path context.
+ */
+export function checkScopedMutualExclusion(
+  root: any,
+  constraint: ScopedMutualExclusion
+): { message: string; severity: 'error' | 'warning' } | null {
+  // Resolve the scope path to get the target object
+  const scopeObj = constraint.scope ? getFieldValue(root, constraint.scope) : root;
+
+  if (!scopeObj) {
+    // Scope object doesn't exist, constraint is vacuously satisfied
+    return null;
+  }
+
+  // Check if multiple fields have values within the scope
+  const presentFields = constraint.fields.filter(field => {
+    if (field.includes('+')) {
+      return field.split('+').every(sf => fieldHasValue(scopeObj, sf));
+    }
+    return fieldHasValue(scopeObj, field);
+  });
+
+  if (presentFields.length > 1) {
+    // Build full path for error message
+    const prefix = constraint.scope ? `${constraint.scope}: ` : '';
+    return {
+      message: `${prefix}${constraint.message}`,
+      severity: constraint.severity,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Check conditional requirement within a scoped object.
+ * Returns null if valid, or result with full path context.
+ */
+export function checkScopedConditionalRequirement(
+  root: any,
+  constraint: ScopedConditionalRequirement
+): { message: string; missing: string[]; recommended: string[] } | null {
+  // Resolve the scope path to get the target object
+  const scopeObj = constraint.scope ? getFieldValue(root, constraint.scope) : root;
+
+  if (!scopeObj) {
+    // Scope object doesn't exist, constraint is vacuously satisfied
+    return null;
+  }
+
+  // Check the trigger condition within the scoped object
+  const fieldValue = getFieldValue(scopeObj, constraint.trigger.field);
+
+  let triggered = false;
+  switch (constraint.trigger.condition) {
+    case 'equals':
+      triggered = fieldValue === constraint.trigger.value;
+      break;
+    case 'exists':
+      triggered = fieldHasValue(scopeObj, constraint.trigger.field);
+      break;
+    case 'greater_than':
+      triggered = typeof fieldValue === 'number' && fieldValue > constraint.trigger.value;
+      break;
+  }
+
+  if (!triggered) {
+    return null;
+  }
+
+  // Check for missing required and recommended fields within scope
+  const missingRequired = constraint.requires.filter(field => !fieldHasValue(scopeObj, field));
+  const missingRecommended = constraint.recommends.filter(field => !fieldHasValue(scopeObj, field));
+
+  if (missingRequired.length > 0 || missingRecommended.length > 0) {
+    const prefix = constraint.scope ? `${constraint.scope}: ` : '';
+    return {
+      message: `${prefix}${constraint.message}`,
+      missing: missingRequired,
+      recommended: missingRecommended,
+    };
+  }
+
+  return null;
+}
+
+/**
+ * Check for deprecated field usage in a bid request.
+ * Returns warnings for any deprecated fields found.
+ */
+export function checkDeprecatedFields(
+  obj: any,
+  deprecatedFields: typeof DEPRECATED_FIELDS
+): { field: string; message: string }[] {
+  const warnings: { field: string; message: string }[] = [];
+
+  for (const deprecated of deprecatedFields) {
+    if (fieldHasValue(obj, deprecated.field)) {
+      let msg = `${deprecated.field} is deprecated. ${deprecated.message}`;
+      if (deprecated.replacement) {
+        msg += ` Use ${deprecated.replacement} instead.`;
+      }
+      warnings.push({ field: deprecated.field, message: msg });
+    }
+  }
+
+  return warnings;
 }

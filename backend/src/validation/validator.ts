@@ -4,7 +4,18 @@
  */
 
 import { BidRequest, Impression, Audio } from '../types/openrtb';
-import { checkMutualExclusion, checkConditionalRequirement, MUTUAL_EXCLUSIONS, CONDITIONAL_REQUIREMENTS } from '../shared/constraints';
+import {
+  checkMutualExclusion,
+  checkConditionalRequirement,
+  checkScopedMutualExclusion,
+  checkScopedConditionalRequirement,
+  checkDeprecatedFields,
+  MUTUAL_EXCLUSIONS,
+  CONDITIONAL_REQUIREMENTS,
+  SCOPED_MUTUAL_EXCLUSIONS,
+  SCOPED_CONDITIONAL_REQUIREMENTS,
+  DEPRECATED_FIELDS,
+} from '../shared/constraints';
 
 export interface ValidationResult {
   valid: boolean;
@@ -66,6 +77,37 @@ export function validateBidRequest(bidRequest: BidRequest): ValidationResult {
         warnings.push(`${constraint.message}: recommended fields: ${result.recommended.join(', ')}`);
       }
     }
+  }
+
+  // Check scoped mutual exclusions (nested objects like site, app, device, content)
+  for (const constraint of SCOPED_MUTUAL_EXCLUSIONS) {
+    const result = checkScopedMutualExclusion(bidRequest, constraint);
+    if (result) {
+      if (result.severity === 'error') {
+        errors.push(result.message);
+      } else {
+        warnings.push(result.message);
+      }
+    }
+  }
+
+  // Check scoped conditional requirements (nested objects like device.geo, user.geo)
+  for (const constraint of SCOPED_CONDITIONAL_REQUIREMENTS) {
+    const result = checkScopedConditionalRequirement(bidRequest, constraint);
+    if (result) {
+      if (result.missing.length > 0) {
+        errors.push(`${result.message}: missing required fields: ${result.missing.join(', ')}`);
+      }
+      if (result.recommended.length > 0) {
+        warnings.push(`${result.message}: recommended fields: ${result.recommended.join(', ')}`);
+      }
+    }
+  }
+
+  // Check for deprecated field usage
+  const deprecationWarnings = checkDeprecatedFields(bidRequest, DEPRECATED_FIELDS);
+  for (const warning of deprecationWarnings) {
+    warnings.push(warning.message);
   }
 
   // Validate site if present
