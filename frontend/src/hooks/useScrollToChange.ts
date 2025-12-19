@@ -160,15 +160,23 @@ export function useScrollToChange(data: unknown) {
 
       foundElement = candidateElement;
 
-      // If we found the element, scroll to it
+      // If we found the element, scroll within the container only (not the whole page)
       if (foundElement) {
-        foundElement.scrollIntoView({
+        const el = foundElement as HTMLElement;
+
+        // Calculate scroll position to center the element within the container
+        const containerRect = container.getBoundingClientRect();
+        const elementRect = el.getBoundingClientRect();
+        const elementTopRelativeToContainer = elementRect.top - containerRect.top + container.scrollTop;
+        const targetScrollTop = elementTopRelativeToContainer - containerRect.height / 2 + elementRect.height / 2;
+
+        // Scroll only within the container
+        container.scrollTo({
+          top: Math.max(0, targetScrollTop),
           behavior: 'smooth',
-          block: 'center',
         });
 
         // Add a brief highlight flash effect
-        const el = foundElement as HTMLElement;
         const originalBg = el.style.backgroundColor;
         const originalTransition = el.style.transition;
 
@@ -187,19 +195,6 @@ export function useScrollToChange(data: unknown) {
             }, 1500);
           }, 100);
         });
-      } else {
-        // Fallback: If we can't find the specific element, try using path depth
-        // to estimate scroll position - scroll proportionally through the container
-        const pathDepth = changedPath.length;
-        const allLines = container.querySelectorAll('[style*="line-height"]');
-        const estimatedIndex = Math.min(pathDepth * 3, allLines.length - 1);
-
-        if (allLines[estimatedIndex]) {
-          allLines[estimatedIndex].scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
-        }
       }
 
       // Clear the changed path after scrolling
