@@ -1,80 +1,99 @@
 /*
  * OpenRTB Bid Request Generator
- * Design System: Terminal/Mission Control Aesthetic
+ * Design System: "Data Observatory" Aesthetic
  *
- * A dark, technical interface inspired by command centers,
- * Bloomberg terminals, and developer tooling.
+ * A sophisticated dark interface blending NASA mission control precision
+ * with Bloomberg terminal authority and retro-futurist elegance.
+ * Bold geometric accents, atmospheric depth, and purposeful motion.
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════
    FONTS
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Geist font family - modern, technical, highly readable */
-@import url('https://fonts.cdnfonts.com/css/geist');
-@import url('https://fonts.cdnfonts.com/css/geist-mono');
+/* JetBrains Mono - superior code readability with programming ligatures */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+/* Space Grotesk - geometric sans with personality, excellent for UI */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* Outfit - clean, modern display font for headers */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CSS CUSTOM PROPERTIES (Design Tokens)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Background Layers */
-  --bg-void: #050709;
-  --bg-deep: #0a0e14;
-  --bg-surface: #131920;
-  --bg-elevated: #1a222c;
-  --bg-hover: #212b38;
+  /* Background Layers - Deep space gradient palette */
+  --bg-void: #02040a;
+  --bg-deep: #080c14;
+  --bg-surface: #0f1419;
+  --bg-elevated: #161d26;
+  --bg-hover: #1e2731;
+  --bg-active: #252f3b;
 
-  /* Primary Accent - Cyan/Teal (the signature color) */
-  --accent-primary: #00d9ff;
-  --accent-primary-dim: #00a8c6;
-  --accent-primary-glow: rgba(0, 217, 255, 0.15);
-  --accent-primary-intense: rgba(0, 217, 255, 0.4);
+  /* Primary Accent - Electric Cyan (signature color) */
+  --accent-primary: #00e5ff;
+  --accent-primary-bright: #5ef7ff;
+  --accent-primary-dim: #00b8cc;
+  --accent-primary-glow: rgba(0, 229, 255, 0.12);
+  --accent-primary-intense: rgba(0, 229, 255, 0.35);
 
-  /* Secondary Accent - Amber */
-  --accent-secondary: #ff9f43;
-  --accent-secondary-dim: #cc7a2a;
-  --accent-secondary-glow: rgba(255, 159, 67, 0.15);
+  /* Secondary Accent - Warm Gold */
+  --accent-secondary: #ffc107;
+  --accent-secondary-bright: #ffd54f;
+  --accent-secondary-dim: #c79100;
+  --accent-secondary-glow: rgba(255, 193, 7, 0.12);
+
+  /* Tertiary Accent - Electric Violet (for visual variety) */
+  --accent-tertiary: #a855f7;
+  --accent-tertiary-dim: #7c3aed;
+  --accent-tertiary-glow: rgba(168, 85, 247, 0.12);
 
   /* Semantic Colors */
-  --success: #00ff88;
-  --success-dim: #00cc6a;
-  --success-glow: rgba(0, 255, 136, 0.15);
+  --success: #10b981;
+  --success-bright: #34d399;
+  --success-dim: #059669;
+  --success-glow: rgba(16, 185, 129, 0.12);
 
-  --warning: #ffcc00;
-  --warning-dim: #cc9f00;
-  --warning-glow: rgba(255, 204, 0, 0.15);
+  --warning: #f59e0b;
+  --warning-bright: #fbbf24;
+  --warning-dim: #d97706;
+  --warning-glow: rgba(245, 158, 11, 0.12);
 
-  --error: #ff4757;
-  --error-dim: #cc3945;
-  --error-glow: rgba(255, 71, 87, 0.15);
+  --error: #ef4444;
+  --error-bright: #f87171;
+  --error-dim: #dc2626;
+  --error-glow: rgba(239, 68, 68, 0.12);
 
-  /* Text Hierarchy - WCAG AA compliant (4.5:1 for normal text, 3:1 for large) */
-  --text-primary: #e8edf4;
-  --text-secondary: #a3b1bf;      /* Was #8899a8, now ~5.5:1 on bg-surface */
-  --text-tertiary: #8494a4;       /* Was #5a6b7a, now ~4.5:1 on bg-surface */
-  --text-muted: #6b7a8a;          /* Was #3d4a57, now ~3.5:1 for decorative use */
+  /* Text Hierarchy - WCAG AA compliant */
+  --text-primary: #f0f4f8;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+  --text-inverse: #020617;
 
   /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.15);
-  --border-accent: rgba(0, 217, 255, 0.3);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --border-accent: rgba(0, 229, 255, 0.25);
+  --border-glow: rgba(0, 229, 255, 0.5);
 
   /* Typography - Font Families */
-  --font-mono: 'Geist Mono', 'SF Mono', 'Consolas', monospace;
-  --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Outfit', 'Space Grotesk', sans-serif;
 
-  /* Typography Scale - Clear Hierarchy */
-  --text-title: 600 1.125rem/1.3 var(--font-sans);      /* Section titles: 18px, semibold */
-  --text-subtitle: 500 0.9375rem/1.4 var(--font-sans);  /* Subsection headers: 15px, medium */
-  --text-label: 500 0.8125rem/1.4 var(--font-sans);     /* Form labels: 13px, medium */
-  --text-body: 400 0.875rem/1.5 var(--font-sans);       /* Body text: 14px, regular */
-  --text-small: 400 0.8125rem/1.5 var(--font-sans);     /* Small body: 13px */
-  --text-helper: 400 0.75rem/1.5 var(--font-sans);      /* Helper text: 12px */
-  --text-badge: 600 0.625rem/1 var(--font-mono);        /* Badges/tags: 10px, mono, uppercase */
-  --text-code: 400 0.8125rem/1.6 var(--font-mono);      /* Code/data: 13px, mono */
+  /* Typography Scale */
+  --text-display: 800 1.75rem/1.1 var(--font-display);  /* Hero text: 28px */
+  --text-title: 600 1.125rem/1.3 var(--font-display);   /* Section titles: 18px */
+  --text-subtitle: 500 0.9375rem/1.4 var(--font-sans);  /* Subsection: 15px */
+  --text-label: 500 0.8125rem/1.4 var(--font-sans);     /* Labels: 13px */
+  --text-body: 400 0.875rem/1.55 var(--font-sans);      /* Body: 14px */
+  --text-small: 400 0.8125rem/1.5 var(--font-sans);     /* Small: 13px */
+  --text-helper: 400 0.75rem/1.5 var(--font-sans);      /* Helper: 12px */
+  --text-badge: 600 0.625rem/1 var(--font-mono);        /* Badges: 10px */
+  --text-code: 400 0.8125rem/1.7 var(--font-mono);      /* Code: 13px */
 
   /* Spacing Scale */
   --space-1: 4px;
@@ -88,21 +107,32 @@
   --space-12: 48px;
 
   /* Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(0, 217, 255, 0.2);
+  /* Shadows - Layered depth system */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.7), 0 8px 20px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px rgba(0, 229, 255, 0.2), 0 0 60px rgba(0, 229, 255, 0.1);
+  --shadow-glow-strong: 0 0 40px rgba(0, 229, 255, 0.35), 0 0 80px rgba(0, 229, 255, 0.15);
+  --shadow-inner: inset 0 2px 8px rgba(0, 0, 0, 0.3);
 
   /* Transitions */
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
+  --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Animation Easings */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -131,17 +161,42 @@ body {
   min-height: 100vh;
 }
 
-/* Subtle grid pattern overlay */
+/* Atmospheric background with grid overlay */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(0, 217, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 217, 255, 0.02) 1px, transparent 1px);
-  background-size: 50px 50px;
+    /* Subtle grid pattern */
+    linear-gradient(rgba(0, 229, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.025) 1px, transparent 1px),
+    /* Radial gradient for depth */
+    radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 100% 100%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+  background-size: 40px 40px, 40px 40px, 100% 100%, 100% 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+/* Animated gradient orb in background */
+body::after {
+  content: '';
+  position: fixed;
+  width: 800px;
+  height: 800px;
+  right: -200px;
+  top: -200px;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-50px, 30px) scale(1.05); }
+  50% { transform: translate(-20px, 60px) scale(0.95); }
+  75% { transform: translate(30px, 20px) scale(1.02); }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

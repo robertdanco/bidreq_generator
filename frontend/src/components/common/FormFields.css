@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    FORM FIELDS
-   Terminal-Style Input Components
+   Data Observatory Input Components
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Base Form Field */
@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  position: relative;
 }
 
 .field-label {
@@ -15,39 +16,54 @@
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: color var(--transition-fast);
+}
+
+.form-field:focus-within .field-label {
+  color: var(--text-primary);
 }
 
 .field-label .required {
-  color: var(--accent-primary);
+  color: var(--error);
   margin-left: var(--space-1);
+  font-weight: 700;
 }
 
 /* Required/Recommended Indicators */
 .required-indicator {
-  color: #e74c3c;
+  color: var(--error);
   margin-left: 4px;
   font-weight: bold;
 }
 
 .recommended-indicator {
-  color: #f39c12;
-  font-size: 0.625rem;
+  color: var(--accent-secondary);
+  font-size: 0.5625rem;
   margin-left: 6px;
-  padding: 1px 6px;
-  background: rgba(243, 156, 18, 0.1);
+  padding: 2px 6px;
+  background: var(--accent-secondary-glow);
+  border: 1px solid rgba(255, 193, 7, 0.2);
   border-radius: 3px;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Required and recommended field border styling */
 .field-input.required-field,
 .field-select.required-field {
-  border-left: 3px solid #e74c3c;
+  border-left: 3px solid var(--error);
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.03) 0%, transparent 20%);
 }
 
 .field-input.recommended-field,
 .field-select.recommended-field {
-  border-left: 3px solid #f39c12;
+  border-left: 3px solid var(--accent-secondary);
+  background: linear-gradient(90deg, var(--accent-secondary-glow) 0%, transparent 20%);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -58,29 +74,34 @@
 .field-select {
   padding: var(--space-3);
   min-height: 44px;             /* WCAG minimum touch target */
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(15, 20, 25, 0.95) 100%);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
   font-size: 0.875rem;
   color: var(--text-primary);
   transition: all var(--transition-fast);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .field-input::placeholder {
   color: var(--text-muted);
+  font-style: italic;
 }
 
 .field-input:hover,
 .field-select:hover {
   border-color: var(--border-strong);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
 }
 
 .field-input:focus,
 .field-select:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px var(--accent-primary-glow),
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.03) 0%, var(--bg-surface) 100%);
+  box-shadow: 0 0 0 3px var(--accent-primary-glow),
+              0 0 20px rgba(0, 229, 255, 0.1),
               inset 0 0 0 1px var(--accent-primary-glow);
 }
 
@@ -90,17 +111,20 @@
   color: var(--text-muted);
   cursor: not-allowed;
   border-color: var(--border-subtle);
+  opacity: 0.6;
 }
 
 /* Error state */
 .has-error .field-input,
 .has-error .field-select {
   border-color: var(--error);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, var(--bg-surface) 100%);
 }
 
 .has-error .field-input:focus,
 .has-error .field-select:focus {
-  box-shadow: 0 0 0 2px var(--error-glow);
+  box-shadow: 0 0 0 3px var(--error-glow),
+              0 0 20px rgba(239, 68, 68, 0.1);
 }
 
 .field-help {
@@ -108,13 +132,26 @@
   font-size: 0.75rem;
   color: var(--text-tertiary);
   line-height: 1.4;
+  padding-left: var(--space-1);
+  border-left: 2px solid var(--border-subtle);
 }
 
 .field-error {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   color: var(--error);
   line-height: 1.4;
+  padding: var(--space-1) var(--space-2);
+  background: var(--error-glow);
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.field-error::before {
+  content: '!';
+  font-weight: 700;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -174,7 +211,13 @@
   gap: var(--space-3);
   cursor: pointer;
   flex: 1;
-  padding: var(--space-2) 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast);
+}
+
+.toggle-container:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .toggle-label {
@@ -182,12 +225,17 @@
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.toggle-container:hover .toggle-label {
+  color: var(--text-primary);
 }
 
 .toggle-wrapper {
   position: relative;
-  width: 48px;                  /* Increased for better touch target */
-  height: 28px;                 /* Increased for better touch target */
+  width: 50px;
+  height: 28px;
 }
 
 .toggle-input {
@@ -200,10 +248,11 @@
   position: absolute;
   cursor: pointer;
   inset: 0;
-  background: var(--bg-hover);
+  background: linear-gradient(135deg, var(--bg-hover) 0%, var(--bg-surface) 100%);
   border: 1px solid var(--border-default);
   transition: all var(--transition-base);
   border-radius: 28px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-slider::before {
@@ -213,20 +262,24 @@
   width: 20px;
   left: 3px;
   bottom: 3px;
-  background: var(--text-tertiary);
+  background: linear-gradient(135deg, var(--text-tertiary) 0%, var(--text-muted) 100%);
   transition: all var(--transition-base);
   border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .toggle-input:checked + .toggle-slider {
-  background: var(--accent-primary-glow);
+  background: linear-gradient(135deg, var(--accent-primary-glow) 0%, rgba(0, 229, 255, 0.15) 100%);
   border-color: var(--accent-primary);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1),
+              0 0 12px var(--accent-primary-glow);
 }
 
 .toggle-input:checked + .toggle-slider::before {
-  transform: translateX(20px);
-  background: var(--accent-primary);
-  box-shadow: 0 0 8px var(--accent-primary-glow);
+  transform: translateX(22px);
+  background: linear-gradient(135deg, var(--accent-primary-bright) 0%, var(--accent-primary) 100%);
+  box-shadow: 0 0 12px var(--accent-primary),
+              0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-input:disabled + .toggle-slider {
@@ -255,17 +308,20 @@
   color: var(--text-tertiary);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  font-family: var(--font-sans);
-  font-size: 0.6875rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .select-all-button:hover {
   background: var(--accent-primary-glow);
   border-color: var(--accent-primary);
   color: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-primary-glow);
 }
 
 .checkbox-grid {
@@ -277,30 +333,61 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  background: var(--bg-surface);
+  padding: var(--space-3) var(--space-3);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(15, 20, 25, 0.95) 100%);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover highlight */
+.checkbox-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.checkbox-item:hover::before {
+  opacity: 1;
 }
 
 .checkbox-item:hover {
   border-color: var(--border-default);
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  transform: translateX(2px);
 }
 
 .checkbox-item.checked {
   border-color: var(--accent-primary-dim);
-  background: var(--accent-primary-glow);
+  background: linear-gradient(135deg, var(--accent-primary-glow) 0%, rgba(0, 229, 255, 0.03) 100%);
+  box-shadow: 0 0 12px var(--accent-primary-glow),
+              inset 0 0 0 1px rgba(0, 229, 255, 0.05);
+}
+
+.checkbox-item.checked::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-primary);
 }
 
 .checkbox-item input[type="checkbox"] {
   margin-top: 2px;
   accent-color: var(--accent-primary);
-  width: 18px;                  /* Increased for better touch target */
-  height: 18px;                 /* Increased for better touch target */
+  width: 18px;
+  height: 18px;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 .checkbox-label {
@@ -308,6 +395,13 @@
   font-size: 0.8125rem;
   color: var(--text-secondary);
   line-height: 1.4;
+  position: relative;
+  z-index: 1;
+  transition: color var(--transition-fast);
+}
+
+.checkbox-item.checked .checkbox-label {
+  color: var(--accent-primary-bright);
 }
 
 .checkbox-description {
@@ -335,12 +429,31 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-1) var(--space-2);
-  background: var(--accent-primary-glow);
+  background: linear-gradient(135deg, var(--accent-primary-glow) 0%, rgba(0, 229, 255, 0.05) 100%);
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-sm);
   font-size: 0.6875rem;
   color: var(--accent-primary);
   max-width: 100%;
+  transition: all var(--transition-fast);
+  animation: tagAppear 0.3s var(--ease-out-back);
+}
+
+@keyframes tagAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tag:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, var(--accent-primary-glow) 100%);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-primary-glow);
 }
 
 .tag-code {
@@ -368,14 +481,17 @@
   font-size: 0.875rem;
   line-height: 1;
   padding: 0 var(--space-1);
-  transition: color var(--transition-fast);
+  transition: all var(--transition-fast);
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 50%;
 }
 
 .tag-remove:hover {
   color: var(--error);
+  background: var(--error-glow);
+  transform: scale(1.1);
 }
 
 .array-input-wrapper {
@@ -390,21 +506,29 @@
 
 .array-add-button {
   padding: var(--space-2) var(--space-4);
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .array-add-button:hover:not(:disabled) {
-  background: var(--accent-primary-glow);
+  background: linear-gradient(135deg, var(--accent-primary-glow) 0%, rgba(0, 229, 255, 0.08) 100%);
   border-color: var(--accent-primary);
   color: var(--accent-primary);
+  box-shadow: 0 0 12px var(--accent-primary-glow);
+  transform: translateY(-1px);
+}
+
+.array-add-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .array-add-button:disabled {
@@ -412,6 +536,7 @@
   border-color: var(--border-subtle);
   color: var(--text-muted);
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Suggestions Dropdown */
@@ -420,14 +545,26 @@
   top: 100%;
   left: 0;
   right: 56px;
-  background: var(--bg-surface);
+  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl), 0 0 30px rgba(0, 0, 0, 0.3);
   z-index: 10;
   margin-top: var(--space-1);
   max-height: 300px;
   overflow-y: auto;
+  animation: dropdownAppear 0.2s var(--ease-out-expo);
+}
+
+@keyframes dropdownAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .suggestion-item {
@@ -440,6 +577,8 @@
   flex-wrap: wrap;
   gap: var(--space-1);
   line-height: 1.4;
+  position: relative;
+  border-left: 2px solid transparent;
 }
 
 .suggestion-code {
@@ -458,11 +597,12 @@
 }
 
 .suggestion-item:hover {
-  background: var(--bg-elevated);
+  background: linear-gradient(90deg, var(--accent-primary-glow) 0%, transparent 50%);
+  border-left-color: var(--accent-primary);
 }
 
 .suggestion-item:hover .suggestion-code {
-  color: var(--accent-primary);
+  color: var(--accent-primary-bright);
 }
 
 .suggestion-item:hover .suggestion-name {
@@ -489,23 +629,62 @@
 }
 
 .size-preset-button {
-  padding: var(--space-2) var(--space-2);
-  background: var(--bg-surface);
+  padding: var(--space-3) var(--space-2);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(15, 20, 25, 0.95) 100%);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer on hover */
+.size-preset-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.03) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.size-preset-button:hover::after {
+  opacity: 1;
 }
 
 .size-preset-button:hover {
   border-color: var(--border-default);
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .size-preset-button.active {
   border-color: var(--accent-primary);
-  background: var(--accent-primary-glow);
+  background: linear-gradient(135deg, var(--accent-primary-glow) 0%, rgba(0, 229, 255, 0.05) 100%);
+  box-shadow: 0 0 16px var(--accent-primary-glow),
+              inset 0 0 0 1px rgba(0, 229, 255, 0.1);
+}
+
+/* Active indicator */
+.size-preset-button.active::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-primary);
+  animation: presetPulse 2s ease-in-out infinite;
+}
+
+@keyframes presetPulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
 .size-preset-name {
@@ -514,20 +693,26 @@
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 2px;
+  position: relative;
+  z-index: 1;
+  transition: color var(--transition-fast);
 }
 
 .size-preset-button.active .size-preset-name {
-  color: var(--accent-primary);
+  color: var(--accent-primary-bright);
 }
 
 .size-preset-dims {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   color: var(--text-muted);
+  position: relative;
+  z-index: 1;
+  transition: color var(--transition-fast);
 }
 
 .size-preset-button.active .size-preset-dims {
-  color: var(--accent-primary-dim);
+  color: var(--accent-primary);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

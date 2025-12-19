@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    SECTIONS - Form Section Styles
-   Terminal/Mission Control Aesthetic
+   Data Observatory Aesthetic
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .section-form {
@@ -10,13 +10,24 @@
 }
 
 .field-group-title {
-  font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: var(--accent-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   margin: 0 0 var(--space-4) 0;
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.field-group-title::before {
+  content: '//';
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .field-group-subtitle {
@@ -59,29 +70,70 @@
   align-items: center;
   gap: var(--space-1);
   padding: var(--space-3) var(--space-2);
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(15, 20, 25, 0.95) 100%);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shine effect on hover */
+.preset-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.03) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.preset-button:hover::after {
+  opacity: 1;
 }
 
 .preset-button:hover {
   border-color: var(--border-default);
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .preset-button.active {
   border-color: var(--accent-primary);
-  background: var(--accent-primary-glow);
+  background: linear-gradient(135deg, var(--accent-primary-glow) 0%, rgba(0, 229, 255, 0.05) 100%);
+  box-shadow: 0 0 16px var(--accent-primary-glow),
+              inset 0 0 0 1px rgba(0, 229, 255, 0.1);
+}
+
+/* Active indicator dot */
+.preset-button.active::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-primary);
+  animation: presetActivePulse 2s ease-in-out infinite;
+}
+
+@keyframes presetActivePulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.1); }
 }
 
 .preset-category {
-  font-family: var(--font-sans);
-  font-size: 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.05em;
   color: var(--text-muted);
+  position: relative;
+  z-index: 1;
 }
 
 .preset-button.active .preset-category {
@@ -91,12 +143,15 @@
 .preset-name {
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+  transition: color var(--transition-fast);
 }
 
 .preset-button.active .preset-name {
-  color: var(--accent-primary);
+  color: var(--accent-primary-bright);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -507,43 +562,68 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   MEDIA TYPE TOGGLE (Banner/Video)
+   MEDIA TYPE TOGGLE (Banner/Video/Audio)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .media-type-toggle {
   display: flex;
   gap: 0;
   margin-bottom: var(--space-3);
-  background: var(--bg-surface);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: var(--space-1);
   width: fit-content;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .media-type-toggle button {
   padding: var(--space-3) var(--space-5);
-  min-height: 44px;             /* WCAG minimum touch target */
+  min-height: 44px;
   background: transparent;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-tertiary);
   cursor: pointer;
   transition: all var(--transition-fast);
+  position: relative;
 }
 
 .media-type-toggle button:hover:not(.active) {
   color: var(--text-secondary);
-  background: var(--bg-elevated);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .media-type-toggle button.active {
-  background: var(--accent-primary);
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-dim) 100%);
   color: var(--bg-void);
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Banner button - gold accent when active */
+.media-type-toggle button[data-type="banner"].active {
+  background: linear-gradient(135deg, var(--accent-secondary) 0%, var(--accent-secondary-dim) 100%);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Video button - violet accent when active */
+.media-type-toggle button[data-type="video"].active {
+  background: linear-gradient(135deg, var(--accent-tertiary) 0%, var(--accent-tertiary-dim) 100%);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Audio button - orange accent when active */
+.media-type-toggle button[data-type="audio"].active {
+  background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dim) 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .impressions-header {
@@ -563,8 +643,8 @@
 
 .add-impression-button {
   padding: var(--space-3) var(--space-5);
-  min-height: 44px;             /* WCAG minimum touch target */
-  background: var(--accent-primary);
+  min-height: 44px;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-primary-dim) 100%);
   color: var(--bg-void);
   border: none;
   border-radius: var(--radius-md);
@@ -574,11 +654,43 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.25),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sweep animation */
+.add-impression-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.add-impression-button:hover::before {
+  transform: translateX(100%);
 }
 
 .add-impression-button:hover {
-  background: var(--text-primary);
-  box-shadow: var(--shadow-glow);
+  background: linear-gradient(135deg, var(--accent-primary-bright) 0%, var(--accent-primary) 100%);
+  box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4),
+              0 0 40px rgba(0, 229, 255, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.add-impression-button:active {
+  transform: translateY(0);
 }
 
 .impressions-limit-warning {
