@@ -1,0 +1,395 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   FEATURES - Preset Selector & Import/Export
+   Command-Palette Style
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Preset Selector Trigger */
+.preset-selector {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+
+.preset-selector-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.preset-selector-button:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-elevated);
+}
+
+.preset-selector-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-primary-glow);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-md);
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.preset-selector-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.preset-selector-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preset-selector-label {
+  font-size: 0.6875rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.preset-selector-value {
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.preset-selector-chevron {
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+  width: 16px;
+  height: 16px;
+}
+
+.preset-selector-chevron.open {
+  transform: rotate(180deg);
+  color: var(--accent-primary);
+}
+
+/* Dropdown Backdrop */
+.preset-selector-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Dropdown Panel */
+.preset-selector-dropdown {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 101;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.preset-dropdown-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+}
+
+.preset-dropdown-header h4 {
+  margin: 0 0 var(--space-1) 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.preset-dropdown-header p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+/* Category Groups */
+.preset-category-group {
+  padding: var(--space-3) var(--space-4);
+}
+
+.preset-category-group:not(:last-child) {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.preset-category-title {
+  margin: 0 0 var(--space-2) 0;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-left: var(--space-2);
+}
+
+.preset-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* Preset Options */
+.preset-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all var(--transition-fast);
+}
+
+.preset-option:hover {
+  background: var(--bg-deep);
+  border-color: var(--border-subtle);
+}
+
+.preset-option.active {
+  background: var(--accent-primary-glow);
+  border-color: var(--border-accent);
+}
+
+.preset-option-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.preset-option.active .preset-option-icon {
+  background: var(--accent-primary-glow);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.preset-option-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.preset-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.preset-option-name {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.preset-option.active .preset-option-name {
+  color: var(--accent-primary);
+}
+
+.preset-option-description {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   IMPORT / EXPORT BUTTONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.import-export-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.import-export-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.import-export-button:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background: var(--accent-primary-glow);
+}
+
+.import-export-button svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   JSON MODE TOGGLE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.json-mode-toggle {
+  display: flex;
+  gap: 1px;
+  background: var(--bg-deep);
+  padding: 2px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.json-mode-button {
+  flex: 1;
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.json-mode-button:hover {
+  color: var(--text-secondary);
+}
+
+.json-mode-button.active {
+  background: var(--bg-elevated);
+  color: var(--accent-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   JSON EDITOR
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.json-editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.json-editor-textarea {
+  width: 100%;
+  min-height: 400px;
+  padding: var(--space-4);
+  background: var(--bg-deep);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.json-editor-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--accent-primary-glow);
+}
+
+.json-editor-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.json-editor-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.json-apply-button {
+  padding: var(--space-2) var(--space-5);
+  background: var(--accent-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--bg-void);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.json-apply-button:hover {
+  background: var(--text-primary);
+  box-shadow: var(--shadow-glow);
+}
+
+.json-apply-button:disabled {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.json-error {
+  padding: var(--space-3);
+  background: var(--error-glow);
+  border: 1px solid var(--error-dim);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--error);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .preset-selector-dropdown {
+    max-height: 300px;
+  }
+
+  .import-export-buttons {
+    flex-direction: column;
+  }
+}
