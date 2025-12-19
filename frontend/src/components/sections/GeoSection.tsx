@@ -37,27 +37,28 @@ export const GeoSection: React.FC = () => {
   return (
     <div className="section-form">
       <div className="field-group">
-        <h4 className="field-group-title">Quick Location Presets</h4>
-        <div className="location-presets">
-          {LOCATION_PRESETS.slice(0, 10).map((loc) => (
+        <h4 className="field-group-title">Quick Presets</h4>
+        <div className="preset-buttons">
+          {LOCATION_PRESETS.slice(0, 8).map((loc) => (
             <button
               key={loc.id}
               type="button"
-              className={`location-preset-button ${
+              className={`preset-button ${
                 geo.city === loc.city && geo.country === loc.country ? 'active' : ''
               }`}
               onClick={() => handlePresetChange(loc.id)}
             >
-              {loc.name}
+              <span className="preset-category">{loc.country}</span>
+              <span className="preset-name">{loc.city}</span>
             </button>
           ))}
         </div>
         <SelectField
-          label="Or select from all locations"
+          label="Load from Preset"
           value={currentPreset?.id || ''}
           options={locationOptions}
           onChange={(value) => handlePresetChange(value as string)}
-          placeholder="Choose a city..."
+          placeholder="Select a location..."
           allowEmpty
         />
       </div>

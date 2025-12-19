@@ -134,6 +134,8 @@
   line-height: 1.4;
   padding-left: var(--space-1);
   border-left: 2px solid var(--border-subtle);
+  margin-top: calc(-1 * var(--space-1)); /* Pull help text closer to input above */
+  margin-bottom: var(--space-1); /* Add space before next field's label */
 }
 
 .field-error {
@@ -399,7 +401,7 @@ input[type="number"].field-input:focus {
 }
 
 .toggle-help {
-  margin-top: var(--space-1);
+  margin-top: 0; /* Use consistent spacing from .field-help */
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
