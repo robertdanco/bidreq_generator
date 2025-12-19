@@ -20,6 +20,12 @@ import type {
 } from '../types/formState';
 import { getPresetById } from '../constants/presets';
 
+// Helper utilities for toApiPayload transformation
+// Converts empty arrays to undefined to keep payload clean
+const omitEmpty = <T>(arr: T[]): T[] | undefined => (arr.length > 0 ? arr : undefined);
+// Converts empty/blank strings to undefined
+const omitBlank = (str: string): string | undefined => (str ? str : undefined);
+
 // Default values
 const defaultSite: SiteFormState = {
   id: '',
@@ -383,7 +389,9 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
   // Impression actions
   addImpression: () =>
     set((state) => {
-      const newId = String(state.impressions.length + 1);
+      // Use max ID + 1 to avoid duplicates after removals
+      const maxId = Math.max(0, ...state.impressions.map((imp) => parseInt(imp.id) || 0));
+      const newId = String(maxId + 1);
       return {
         impressions: [...state.impressions, createDefaultImpression(newId)],
       };
@@ -729,39 +737,39 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
     // Site XOR App (mutually exclusive per OpenRTB 2.6)
     if (state.inventoryType === 'site') {
       payload.site = {
-        id: state.site.id || undefined,
+        id: omitBlank(state.site.id),
         name: state.site.name || state.site.domain,
-        ref: state.site.ref || undefined,
-        cat: state.site.cat.length > 0 ? state.site.cat : undefined,
-        sectioncat: state.site.sectioncat.length > 0 ? state.site.sectioncat : undefined,
-        pagecat: state.site.pagecat.length > 0 ? state.site.pagecat : undefined,
+        ref: omitBlank(state.site.ref),
+        cat: omitEmpty(state.site.cat),
+        sectioncat: omitEmpty(state.site.sectioncat),
+        pagecat: omitEmpty(state.site.pagecat),
         privacypolicy: state.site.privacypolicy ? 1 : 0,
         mobile: state.site.mobile ? 1 : 0,
         publisher: {
-          id: state.site.publisher.id || undefined,
+          id: omitBlank(state.site.publisher.id),
           name: state.site.publisher.name || state.site.domain,
           domain: state.site.publisher.domain || state.site.domain,
-          cat: state.site.publisher.cat.length > 0 ? state.site.publisher.cat : undefined,
+          cat: omitEmpty(state.site.publisher.cat),
         },
       };
     } else {
       payload.app = {
-        id: state.app.id || undefined,
-        name: state.app.name || undefined,
-        bundle: state.app.bundle || undefined,
-        domain: state.app.domain || undefined,
-        storeurl: state.app.storeurl || undefined,
-        ver: state.app.ver || undefined,
-        cat: state.app.cat.length > 0 ? state.app.cat : undefined,
-        sectioncat: state.app.sectioncat.length > 0 ? state.app.sectioncat : undefined,
-        pagecat: state.app.pagecat.length > 0 ? state.app.pagecat : undefined,
+        id: omitBlank(state.app.id),
+        name: omitBlank(state.app.name),
+        bundle: omitBlank(state.app.bundle),
+        domain: omitBlank(state.app.domain),
+        storeurl: omitBlank(state.app.storeurl),
+        ver: omitBlank(state.app.ver),
+        cat: omitEmpty(state.app.cat),
+        sectioncat: omitEmpty(state.app.sectioncat),
+        pagecat: omitEmpty(state.app.pagecat),
         privacypolicy: state.app.privacypolicy ? 1 : 0,
         paid: state.app.paid ? 1 : 0,
         publisher: {
-          id: state.app.publisher.id || undefined,
-          name: state.app.publisher.name || undefined,
-          domain: state.app.publisher.domain || undefined,
-          cat: state.app.publisher.cat.length > 0 ? state.app.publisher.cat : undefined,
+          id: omitBlank(state.app.publisher.id),
+          name: omitBlank(state.app.publisher.name),
+          domain: omitBlank(state.app.publisher.domain),
+          cat: omitEmpty(state.app.publisher.cat),
         },
       };
     }
@@ -848,14 +856,17 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
     // Source (only include if there's meaningful data)
     const hasSourceData = state.source.tid || state.source.pchain || state.source.schain;
     if (hasSourceData) {
+      // Filter out invalid schain nodes (must have required asi and sid fields)
+      const validSchainNodes = state.source.schain?.nodes.filter((n) => n.asi && n.sid) || [];
+
       payload.source = {
         fd: state.source.fd || undefined,
         tid: state.source.tid || undefined,
         pchain: state.source.pchain || undefined,
-        schain: state.source.schain ? {
+        schain: state.source.schain && validSchainNodes.length > 0 ? {
           complete: state.source.schain.complete ? 1 : 0,
           ver: state.source.schain.ver,
-          nodes: state.source.schain.nodes.map(n => ({
+          nodes: validSchainNodes.map((n) => ({
             asi: n.asi,
             sid: n.sid,
             rid: n.rid || undefined,
@@ -878,7 +889,7 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
         tagid: imp.tagid || undefined,
         displaymanager: imp.displaymanager || undefined,
         displaymanagerver: imp.displaymanagerver || undefined,
-        rwdd: imp.rwdd ? 1 : undefined,
+        rwdd: imp.rwdd ? 1 : 0,
         ssai: imp.ssai || undefined,
         exp: imp.exp ?? undefined,
       };
@@ -887,14 +898,14 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
       if (imp.pmp.enabled) {
         base.pmp = {
           private_auction: imp.pmp.private_auction ? 1 : 0,
-          deals: imp.pmp.deals.length > 0 ? imp.pmp.deals.map(d => ({
+          deals: omitEmpty(imp.pmp.deals.map(d => ({
             id: d.id,
             bidfloor: d.bidfloor,
             bidfloorcur: d.bidfloorcur,
             at: d.at,
-            wseat: d.wseat.length > 0 ? d.wseat : undefined,
-            wadomain: d.wadomain.length > 0 ? d.wadomain : undefined,
-          })) : undefined,
+            wseat: omitEmpty(d.wseat),
+            wadomain: omitEmpty(d.wadomain),
+          }))),
         };
       }
 
@@ -902,10 +913,10 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
         return {
           ...base,
           video: {
-            mimes: imp.video.mimes.length > 0 ? imp.video.mimes : undefined,
+            mimes: omitEmpty(imp.video.mimes),
             minduration: imp.video.minduration,
             maxduration: imp.video.maxduration,
-            protocols: imp.video.protocols.length > 0 ? imp.video.protocols : undefined,
+            protocols: omitEmpty(imp.video.protocols),
             w: imp.video.w,
             h: imp.video.h,
             startdelay: imp.video.startdelay,
@@ -914,53 +925,53 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
             skip: imp.video.skip ? 1 : 0,
             skipmin: imp.video.skip && imp.video.skipmin ? imp.video.skipmin : undefined,
             skipafter: imp.video.skip && imp.video.skipafter ? imp.video.skipafter : undefined,
-            playbackmethod: imp.video.playbackmethod.length > 0 ? imp.video.playbackmethod : undefined,
-            delivery: imp.video.delivery.length > 0 ? imp.video.delivery : undefined,
+            playbackmethod: omitEmpty(imp.video.playbackmethod),
+            delivery: omitEmpty(imp.video.delivery),
             pos: imp.video.pos,
-            api: imp.video.api.length > 0 ? imp.video.api : undefined,
-            battr: imp.video.battr.length > 0 ? imp.video.battr : undefined,
+            api: omitEmpty(imp.video.api),
+            battr: omitEmpty(imp.video.battr),
             minbitrate: imp.video.minbitrate ?? undefined,
             maxbitrate: imp.video.maxbitrate ?? undefined,
             boxingallowed: imp.video.boxingallowed ? 1 : 0,
             playbackend: imp.video.playbackend,
             // Pod fields
             poddur: imp.video.poddur ?? undefined,
-            podid: imp.video.podid || undefined,
+            podid: omitBlank(imp.video.podid),
             podseq: imp.video.podseq || undefined,
             slotinpod: imp.video.slotinpod || undefined,
             mincpmpersec: imp.video.mincpmpersec ?? undefined,
             maxseq: imp.video.maxseq ?? undefined,
             maxextended: imp.video.maxextended ?? undefined,
-            rqddurs: imp.video.rqddurs.length > 0 ? imp.video.rqddurs : undefined,
+            rqddurs: omitEmpty(imp.video.rqddurs),
           },
         };
       } else if (imp.mediaType === 'audio') {
         return {
           ...base,
           audio: {
-            mimes: imp.audio.mimes.length > 0 ? imp.audio.mimes : undefined,
+            mimes: omitEmpty(imp.audio.mimes),
             minduration: imp.audio.minduration,
             maxduration: imp.audio.maxduration,
-            protocols: imp.audio.protocols.length > 0 ? imp.audio.protocols : undefined,
+            protocols: omitEmpty(imp.audio.protocols),
             startdelay: imp.audio.startdelay,
-            battr: imp.audio.battr.length > 0 ? imp.audio.battr : undefined,
+            battr: omitEmpty(imp.audio.battr),
             minbitrate: imp.audio.minbitrate ?? undefined,
             maxbitrate: imp.audio.maxbitrate ?? undefined,
-            delivery: imp.audio.delivery.length > 0 ? imp.audio.delivery : undefined,
-            api: imp.audio.api.length > 0 ? imp.audio.api : undefined,
-            companiontype: imp.audio.companiontype.length > 0 ? imp.audio.companiontype : undefined,
+            delivery: omitEmpty(imp.audio.delivery),
+            api: omitEmpty(imp.audio.api),
+            companiontype: omitEmpty(imp.audio.companiontype),
             feed: imp.audio.feed,
             stitched: imp.audio.stitched ? 1 : 0,
             nvol: imp.audio.nvol,
             // Pod fields
             poddur: imp.audio.poddur ?? undefined,
-            podid: imp.audio.podid || undefined,
+            podid: omitBlank(imp.audio.podid),
             podseq: imp.audio.podseq || undefined,
             slotinpod: imp.audio.slotinpod || undefined,
             mincpmpersec: imp.audio.mincpmpersec ?? undefined,
             maxseq: imp.audio.maxseq ?? undefined,
             maxextended: imp.audio.maxextended ?? undefined,
-            rqddurs: imp.audio.rqddurs.length > 0 ? imp.audio.rqddurs : undefined,
+            rqddurs: omitEmpty(imp.audio.rqddurs),
           },
         };
       } else {
@@ -970,12 +981,12 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
           banner: {
             w: imp.banner.w,
             h: imp.banner.h,
-            format: imp.banner.format.length > 0 ? imp.banner.format : undefined,
+            format: omitEmpty(imp.banner.format),
             pos: imp.banner.pos,
-            api: imp.banner.api.length > 0 ? imp.banner.api : undefined,
-            mimes: imp.banner.mimes.length > 0 ? imp.banner.mimes : undefined,
-            battr: imp.banner.battr.length > 0 ? imp.banner.battr : undefined,
-            btype: imp.banner.btype.length > 0 ? imp.banner.btype : undefined,
+            api: omitEmpty(imp.banner.api),
+            mimes: omitEmpty(imp.banner.mimes),
+            battr: omitEmpty(imp.banner.battr),
+            btype: omitEmpty(imp.banner.btype),
           },
         };
       }

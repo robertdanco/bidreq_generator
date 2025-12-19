@@ -10,3 +10,7 @@ export { BannerEditor } from './BannerEditor';
 export { VideoEditor } from './VideoEditor';
 export { AudioEditor } from './AudioEditor';
 export { AuctionSection } from './AuctionSection';
+
+// Shared components for media type editors
+export { ImpressionHeader } from './ImpressionHeader';
+export { ImpressionCommonFields } from './ImpressionCommonFields';

@@ -3,9 +3,8 @@ import { BannerEditor } from './BannerEditor';
 import { VideoEditor } from './VideoEditor';
 import { AudioEditor } from './AudioEditor';
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
+import { MAX_IMPRESSIONS } from '../../constants/openrtb-enums';
 import './Sections.css';
-
-const MAX_IMPRESSIONS = 10;
 
 export const ImpressionSection: React.FC = () => {
   const { impressions, addImpression, setImpressionMediaType } = useBidRequestStore();

@@ -99,6 +99,8 @@ export interface ImpressionOverrides {
   secure?: number;
   instl?: number;
   tagid?: string;
+  displaymanager?: string;
+  displaymanagerver?: string;
   audio?: Partial<Audio>;
 }
 
@@ -130,6 +132,12 @@ export function generateAudioImpression(
   // Add optional fields if provided
   if (overrides?.tagid !== undefined) {
     impression.tagid = overrides.tagid;
+  }
+  if (overrides?.displaymanager !== undefined) {
+    impression.displaymanager = overrides.displaymanager;
+  }
+  if (overrides?.displaymanagerver !== undefined) {
+    impression.displaymanagerver = overrides.displaymanagerver;
   }
 
   return impression;

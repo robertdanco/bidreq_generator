@@ -86,6 +86,8 @@ export interface ImpressionOverrides {
   secure?: number;
   instl?: number;
   tagid?: string;
+  displaymanager?: string;
+  displaymanagerver?: string;
   banner?: Partial<Banner>;
 }
 
@@ -117,6 +119,12 @@ export function generateBannerImpression(
   // Add optional fields if provided
   if (overrides?.tagid !== undefined) {
     impression.tagid = overrides.tagid;
+  }
+  if (overrides?.displaymanager !== undefined) {
+    impression.displaymanager = overrides.displaymanager;
+  }
+  if (overrides?.displaymanagerver !== undefined) {
+    impression.displaymanagerver = overrides.displaymanagerver;
   }
 
   return impression;

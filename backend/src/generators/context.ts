@@ -211,28 +211,38 @@ export function generateUser(params: UserParams = {}): User {
     user.geo = params.geo as Geo;
   }
 
-  // Data segments
+  // Data segments (filter out entries without required id)
   if (params.data?.length) {
-    user.data = params.data.map(d => ({
-      id: d.id,
-      name: d.name,
-      segment: d.segment?.map(s => ({
-        id: s.id,
-        name: s.name,
-        value: s.value
-      }))
-    }));
+    const validData = params.data.filter(d => d.id);
+    if (validData.length > 0) {
+      user.data = validData.map(d => ({
+        id: d.id,
+        name: d.name,
+        segment: d.segment?.filter(s => s.id).map(s => ({
+          id: s.id,
+          name: s.name,
+          value: s.value
+        }))
+      }));
+    }
   }
 
-  // Extended IDs
+  // Extended IDs (filter out entries without required source and uids with id)
   if (params.eids?.length) {
-    user.eids = params.eids.map(e => ({
-      source: e.source,
-      uids: e.uids?.map(u => ({
-        id: u.id,
-        atype: u.atype
+    const validEids = params.eids
+      .filter(e => e.source)
+      .map(e => ({
+        source: e.source,
+        uids: e.uids?.filter(u => u.id).map(u => ({
+          id: u.id,
+          atype: u.atype
+        }))
       }))
-    }));
+      .filter(e => e.uids && e.uids.length > 0);
+
+    if (validEids.length > 0) {
+      user.eids = validEids;
+    }
   }
 
   return user;

@@ -188,7 +188,9 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
           bidfloorcur: imp.bidfloorcur,
           secure: imp.secure,
           instl: imp.instl,
-          tagid: imp.tagid
+          tagid: imp.tagid,
+          displaymanager: imp.displaymanager,
+          displaymanagerver: imp.displaymanagerver
         };
 
         const impression = generateBannerImpression(impId, bannerParams, imp.bidfloor, impOverrides);
@@ -231,7 +233,9 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
           bidfloorcur: imp.bidfloorcur,
           secure: imp.secure,
           instl: imp.instl,
-          tagid: imp.tagid
+          tagid: imp.tagid,
+          displaymanager: imp.displaymanager,
+          displaymanagerver: imp.displaymanagerver
         };
 
         const impression = generateVideoImpression(impId, videoParams, imp.bidfloor, impOverrides, deviceOverrides?.devicetype);
@@ -274,7 +278,9 @@ export function generateBannerBidRequest(params: BidRequestParams): BidRequest {
           bidfloorcur: imp.bidfloorcur,
           secure: imp.secure,
           instl: imp.instl,
-          tagid: imp.tagid
+          tagid: imp.tagid,
+          displaymanager: imp.displaymanager,
+          displaymanagerver: imp.displaymanagerver
         };
 
         const impression = generateAudioImpression(impId, audioParams, imp.bidfloor, impOverrides);

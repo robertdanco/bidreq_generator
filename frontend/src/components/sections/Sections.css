@@ -236,7 +236,8 @@
   margin-bottom: 0;
 }
 
-.video-editor .banner-id {
+.video-editor .banner-id,
+.video-editor .impression-id {
   color: #a855f7;
   background: rgba(168, 85, 247, 0.1);
   border: 1px solid rgba(168, 85, 247, 0.3);
@@ -246,7 +247,9 @@
   margin-bottom: 0;
 }
 
-.banner-header {
+/* Shared header styles - works for banner-header (legacy) and impression-header (new) */
+.banner-header,
+.impression-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -255,7 +258,8 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.banner-title {
+.banner-title,
+.impression-title {
   margin: 0;
   font-family: var(--font-sans);
   font-size: 0.8125rem;
@@ -266,7 +270,8 @@
   gap: var(--space-3);
 }
 
-.banner-id {
+.banner-id,
+.impression-id {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 500;
@@ -637,7 +642,8 @@
     gap: var(--space-3);
   }
 
-  .banner-header {
+  .banner-header,
+  .impression-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-3);
@@ -862,7 +868,8 @@
   margin-bottom: 0;
 }
 
-.audio-editor .banner-id {
+.audio-editor .banner-id,
+.audio-editor .impression-id {
   color: #f59e0b;
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.3);

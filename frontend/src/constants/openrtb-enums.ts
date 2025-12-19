@@ -254,12 +254,15 @@ export const VIDEO_PLAYBACK_END = [
   { value: 3, label: 'When Leaving Viewport' },
 ] as const;
 
-// Companion types
+// Companion types (shared by video and audio)
 export const VIDEO_COMPANION_TYPES = [
   { value: 1, label: 'Static Resource' },
   { value: 2, label: 'HTML Resource' },
   { value: 3, label: 'iframe Resource' },
 ] as const;
+
+// Alias for audio editors (same values as video companion types per OpenRTB 2.6)
+export const COMPANION_TYPES = VIDEO_COMPANION_TYPES;
 
 // ============================================================================
 // AUDIO ENUMS
@@ -380,3 +383,11 @@ export const SLOT_IN_POD = [
   { value: 2, label: 'Last Slot' },
   { value: -1, label: 'First or Last Slot' },
 ] as const;
+
+// ============================================================================
+// FORM CONSTRAINTS
+// ============================================================================
+
+// Maximum number of impressions per bid request
+// OpenRTB spec has no explicit limit, but we cap at 10 for practical UX reasons
+export const MAX_IMPRESSIONS = 10;

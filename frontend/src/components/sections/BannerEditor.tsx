@@ -1,13 +1,13 @@
 import React from 'react';
-import { NumberField, SelectField, MultiSelectField, ToggleField, TextField } from '../common';
+import { NumberField, SelectField, MultiSelectField } from '../common';
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
+import { ImpressionHeader } from './ImpressionHeader';
+import { ImpressionCommonFields } from './ImpressionCommonFields';
 import {
   IAB_BANNER_SIZES_GROUPED,
   AD_POSITIONS,
   API_FRAMEWORKS,
   BANNER_MIMES,
-  CURRENCIES,
-  BLOCKED_ATTRIBUTES,
 } from '../../constants/openrtb-enums';
 import type { ImpressionFormState } from '../../types/formState';
 import './Sections.css';
@@ -40,21 +40,12 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({
 
   return (
     <div className="banner-editor">
-      <div className="banner-header">
-        <h4 className="banner-title">
-          Impression #{index + 1}
-          <span className="banner-id">ID: {impression.id}</span>
-        </h4>
-        {canRemove && (
-          <button
-            type="button"
-            className="remove-impression-button"
-            onClick={() => removeImpression(impression.id)}
-          >
-            Remove
-          </button>
-        )}
-      </div>
+      <ImpressionHeader
+        index={index}
+        impressionId={impression.id}
+        canRemove={canRemove}
+        onRemove={() => removeImpression(impression.id)}
+      />
 
       <div className="field-group">
         <h5 className="field-group-subtitle">Banner Size</h5>
@@ -134,56 +125,13 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({
       </div>
 
       <div className="field-group">
-        <h5 className="field-group-subtitle">Position & Type</h5>
+        <h5 className="field-group-subtitle">Position</h5>
         <div className="field-row">
           <SelectField
             label="Position"
             value={impression.banner.pos}
             options={AD_POSITIONS}
             onChange={(value) => updateBanner(impression.id, { pos: value as number })}
-          />
-          <TextField
-            label="Tag ID"
-            value={impression.tagid}
-            onChange={(value) => updateImpression(impression.id, { tagid: value })}
-            placeholder="header-ad, sidebar-1..."
-            helpText="Identifier for the ad placement"
-          />
-        </div>
-        <div className="field-row toggles-row">
-          <ToggleField
-            label="Secure (HTTPS)"
-            value={impression.secure}
-            onChange={(value) => updateImpression(impression.id, { secure: value })}
-          />
-          <ToggleField
-            label="Interstitial"
-            value={impression.instl}
-            onChange={(value) => updateImpression(impression.id, { instl: value })}
-          />
-        </div>
-      </div>
-
-      <div className="field-group">
-        <h5 className="field-group-subtitle">Bid Floor</h5>
-        <div className="field-row">
-          <NumberField
-            label="Bid Floor"
-            value={impression.bidfloor}
-            onChange={(value) =>
-              updateImpression(impression.id, { bidfloor: value ?? 0 })
-            }
-            min={0}
-            step={0.01}
-            helpText="Minimum CPM bid"
-          />
-          <SelectField
-            label="Currency"
-            value={impression.bidfloorcur}
-            options={CURRENCIES}
-            onChange={(value) =>
-              updateImpression(impression.id, { bidfloorcur: value as string })
-            }
           />
         </div>
       </div>
@@ -214,19 +162,13 @@ export const BannerEditor: React.FC<BannerEditorProps> = ({
         />
       </div>
 
-      <div className="field-group">
-        <h5 className="field-group-subtitle">Blocked Creative Attributes</h5>
-        <MultiSelectField
-          label="Block these creative attributes"
-          values={impression.banner.battr}
-          options={BLOCKED_ATTRIBUTES}
-          onChange={(values) =>
-            updateBanner(impression.id, { battr: values as number[] })
-          }
-          columns={2}
-          helpText="Creative attributes that should be blocked"
-        />
-      </div>
+      <ImpressionCommonFields
+        impression={impression}
+        updateImpression={updateImpression}
+        battrValues={impression.banner.battr}
+        onBattrChange={(values) => updateBanner(impression.id, { battr: values })}
+        tagIdPlaceholder="header-ad, sidebar-1..."
+      />
     </div>
   );
 };
