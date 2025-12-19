@@ -25,12 +25,19 @@ function transformToOpenRTB(payload: any): any {
   if (payload.badv && payload.badv.length > 0) bidRequest.badv = payload.badv;
   if (payload.bapp && payload.bapp.length > 0) bidRequest.bapp = payload.bapp;
 
-  // Add site if provided
+  // Add site if provided (mutually exclusive with app per OpenRTB 2.6)
   if (payload.site) {
     bidRequest.site = {
       ...payload.site,
       domain: payload.domain || payload.site.domain,
       page: payload.page || payload.site.page,
+    };
+  }
+
+  // Add app if provided (mutually exclusive with site per OpenRTB 2.6)
+  if (payload.app) {
+    bidRequest.app = {
+      ...payload.app,
     };
   }
 
@@ -49,12 +56,20 @@ function transformToOpenRTB(payload: any): any {
 function validateBidRequest(bidRequest: any): string[] {
   const warnings: string[] = [];
 
-  if (!bidRequest.site?.domain) {
-    warnings.push('Site domain is missing');
-  }
-
-  if (!bidRequest.site?.page) {
-    warnings.push('Site page URL is missing');
+  // Validate based on inventory type (site vs app are mutually exclusive)
+  if (bidRequest.site) {
+    if (!bidRequest.site.domain) {
+      warnings.push('Site domain is missing');
+    }
+    if (!bidRequest.site.page) {
+      warnings.push('Site page URL is missing');
+    }
+  } else if (bidRequest.app) {
+    if (!bidRequest.app.bundle) {
+      warnings.push('App bundle ID is missing');
+    }
+  } else {
+    warnings.push('Site or App is required');
   }
 
   if (!bidRequest.imp || bidRequest.imp.length === 0) {

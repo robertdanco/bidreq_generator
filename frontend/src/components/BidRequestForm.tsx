@@ -116,7 +116,7 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
             onClick={() => setInventoryType('site')}
           >
             <GlobeIcon />
-            Site (Web)
+            Site
           </button>
           <button
             type="button"
@@ -124,7 +124,7 @@ const BidRequestForm: React.FC<BidRequestFormProps> = ({ onSave }) => {
             onClick={() => setInventoryType('app')}
           >
             <SmartphoneIcon />
-            App (Mobile)
+            App
           </button>
         </div>
       </div>
