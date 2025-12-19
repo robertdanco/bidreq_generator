@@ -121,22 +121,39 @@ export function useScrollToChange(data: unknown) {
       const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
       let foundElement: Element | null = null;
 
-      // Search for the key text
+      // Collect all text nodes and their positions first
+      const textNodes: { node: Node; text: string }[] = [];
       while (walker.nextNode()) {
-        const textNode = walker.currentNode;
-        const text = textNode.textContent?.trim() || '';
+        const text = walker.currentNode.textContent?.trim() || '';
+        if (text) {
+          textNodes.push({ node: walker.currentNode, text });
+        }
+      }
 
-        // Match the key name (library renders without quotes)
-        if (text === targetKey) {
-          const parent = textNode.parentElement;
-          if (parent) {
-            // Use the immediate parent element (the key span) for highlighting
-            // This highlights just the key-value row instead of a larger container
-            foundElement = parent;
+      // Build the path context by finding keys that appear in order
+      // We need to match the full path hierarchy, not just the target key
+      let pathIndex = 0;
+      let candidateElement: Element | null = null;
+
+      for (const { node, text } of textNodes) {
+        const currentPathKey = changedPath[pathIndex];
+
+        // Check if this text matches the current path segment
+        if (text === currentPathKey) {
+          pathIndex++;
+
+          // If we've matched the entire path, this is our target
+          if (pathIndex === changedPath.length) {
+            const parent = node.parentElement;
+            if (parent) {
+              candidateElement = parent;
+            }
             break;
           }
         }
       }
+
+      foundElement = candidateElement;
 
       // If we found the element, scroll to it
       if (foundElement) {
