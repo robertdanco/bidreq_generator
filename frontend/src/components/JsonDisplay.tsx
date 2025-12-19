@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import JsonView from '@uiw/react-json-view';
+import { useScrollToChange } from '../hooks/useScrollToChange';
 
 // Custom high-contrast dark theme for better accessibility
 const accessibleDarkTheme = {
@@ -39,6 +40,18 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ data, warnings }) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [viewMode, setViewMode] = useState<'visual' | 'raw'>('visual');
+
+  // Auto-scroll to changed fields
+  const { scrollContainerRef, scrollToChange } = useScrollToChange(data);
+
+  // Trigger scroll when data changes
+  useEffect(() => {
+    if (viewMode === 'visual') {
+      // Small delay to ensure DOM has updated
+      const timer = setTimeout(scrollToChange, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [data, scrollToChange, viewMode]);
 
   const handleCopy = async () => {
     try {
@@ -125,7 +138,7 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ data, warnings }) => {
         </div>
       )}
 
-      <div className="json-viewer">
+      <div className="json-viewer" ref={scrollContainerRef}>
         {viewMode === 'visual' ? (
           <JsonView
             value={data}

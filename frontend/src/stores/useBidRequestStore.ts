@@ -30,6 +30,75 @@ const omitEmpty = <T>(arr: T[]): T[] | undefined => (arr.length > 0 ? arr : unde
 // Converts empty/blank strings to undefined
 const omitBlank = (str: string): string | undefined => (str ? str : undefined);
 
+// Helper to serialize Content object (only include if has meaningful data)
+const serializeContent = (content: ContentFormState): Record<string, unknown> | undefined => {
+  const hasContentData =
+    content.id || content.title || content.series || content.season ||
+    content.episode || content.artist || content.genre || content.album ||
+    content.isrc || content.url || content.cat.length > 0 ||
+    content.keywords || content.livestream || content.len ||
+    content.producer.id || content.producer.name ||
+    content.network.id || content.network.name ||
+    content.channel.id || content.channel.name;
+
+  if (!hasContentData) return undefined;
+
+  const result: Record<string, unknown> = {
+    id: omitBlank(content.id),
+    episode: content.episode ?? undefined,
+    title: omitBlank(content.title),
+    series: omitBlank(content.series),
+    season: omitBlank(content.season),
+    artist: omitBlank(content.artist),
+    genre: omitBlank(content.genre),
+    album: omitBlank(content.album),
+    isrc: omitBlank(content.isrc),
+    url: omitBlank(content.url),
+    cat: omitEmpty(content.cat),
+    prodq: content.prodq || undefined,
+    context: content.context || undefined,
+    contentrating: omitBlank(content.contentrating),
+    userrating: omitBlank(content.userrating),
+    qagmediarating: content.qagmediarating || undefined,
+    keywords: omitBlank(content.keywords),
+    livestream: content.livestream ? 1 : 0,
+    sourcerelationship: content.sourcerelationship || undefined,
+    len: content.len ?? undefined,
+    language: omitBlank(content.language),
+    embeddable: content.embeddable ? 1 : 0,
+  };
+
+  // Producer (only include if has data)
+  if (content.producer.id || content.producer.name || content.producer.domain || content.producer.cat.length > 0) {
+    result.producer = {
+      id: omitBlank(content.producer.id),
+      name: omitBlank(content.producer.name),
+      domain: omitBlank(content.producer.domain),
+      cat: omitEmpty(content.producer.cat),
+    };
+  }
+
+  // Network (only include if has data)
+  if (content.network.id || content.network.name || content.network.domain) {
+    result.network = {
+      id: omitBlank(content.network.id),
+      name: omitBlank(content.network.name),
+      domain: omitBlank(content.network.domain),
+    };
+  }
+
+  // Channel (only include if has data)
+  if (content.channel.id || content.channel.name || content.channel.domain) {
+    result.channel = {
+      id: omitBlank(content.channel.id),
+      name: omitBlank(content.channel.name),
+      domain: omitBlank(content.channel.domain),
+    };
+  }
+
+  return result;
+};
+
 // Default values
 const defaultContent: ContentFormState = {
   id: '',
@@ -1083,6 +1152,7 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
           domain: state.site.publisher.domain || state.site.domain,
           cat: omitEmpty(state.site.publisher.cat),
         },
+        content: serializeContent(state.site.content),
       };
     } else {
       payload.app = {
@@ -1103,6 +1173,7 @@ export const useBidRequestStore = create<BidRequestStore>((set, get) => ({
           domain: omitBlank(state.app.publisher.domain),
           cat: omitEmpty(state.app.publisher.cat),
         },
+        content: serializeContent(state.app.content),
       };
     }
 

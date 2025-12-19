@@ -2,10 +2,19 @@ import React, { useMemo } from 'react';
 import { TextField, ToggleField, ArrayField } from '../common';
 import { useBidRequestStore } from '../../stores/useBidRequestStore';
 import { getIabCategorySuggestions, getIabCategoryDisplay } from '../../constants/iab-categories';
+import { ContentSection } from './ContentSection';
 import './Sections.css';
 
 export const AppSection: React.FC = () => {
-  const { app, updateApp, updateAppPublisher } = useBidRequestStore();
+  const {
+    app,
+    updateApp,
+    updateAppPublisher,
+    updateAppContent,
+    updateAppProducer,
+    updateAppNetwork,
+    updateAppChannel,
+  } = useBidRequestStore();
 
   // Memoize IAB category suggestions to avoid recomputing on each render
   const iabSuggestions = useMemo(() => getIabCategorySuggestions(), []);
@@ -148,6 +157,14 @@ export const AppSection: React.FC = () => {
           displayFormatter={getIabCategoryDisplay}
         />
       </div>
+
+      <ContentSection
+        content={app.content}
+        updateContent={updateAppContent}
+        updateProducer={updateAppProducer}
+        updateNetwork={updateAppNetwork}
+        updateChannel={updateAppChannel}
+      />
     </div>
   );
 };

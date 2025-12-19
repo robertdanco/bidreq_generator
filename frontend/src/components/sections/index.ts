@@ -15,3 +15,4 @@ export { AuctionSection } from './AuctionSection';
 export { ImpressionHeader } from './ImpressionHeader';
 export { ImpressionCommonFields } from './ImpressionCommonFields';
 export { PmpEditor } from './PmpEditor';
+export { ContentSection } from './ContentSection';
