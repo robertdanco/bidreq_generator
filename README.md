@@ -14,9 +14,13 @@ Generate valid OpenRTB 2.6 bid requests for ad tech testing and development.
 ## Setup
 
 ```bash
-npm install
-cd backend && npm install
-cd ../frontend && npm install --legacy-peer-deps
+npm run install:all
+npm run dev
+```
+
+Or manually:
+```bash
+npm install && cd backend && npm install && cd ../frontend && npm install --legacy-peer-deps
 npm run dev
 ```
 
