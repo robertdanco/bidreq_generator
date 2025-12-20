@@ -53,17 +53,33 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-4) var(--space-5);
-  padding-left: var(--space-6);
-  cursor: pointer;
-  user-select: none;
   background: transparent;
   transition: all var(--transition-fast);
   position: relative;
+  gap: var(--space-2);
+}
+
+/* The toggle button takes up most of the header */
+.section-toggle-button {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  padding-left: var(--space-6);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+  position: relative;
+  color: inherit;
+  font: inherit;
+  text-align: left;
 }
 
 /* Subtle hover highlight */
-.section-header::after {
+.section-toggle-button::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -73,15 +89,27 @@
   pointer-events: none;
 }
 
-.section-header:hover::after {
+.section-toggle-button:hover::after {
   opacity: 0.5;
 }
 
-.section-header:hover {
+.section-toggle-button:hover {
   background: var(--bg-elevated);
 }
 
-.collapsible-section.expanded .section-header {
+/* Focus visible styles for keyboard navigation */
+.section-toggle-button:focus-visible {
+  outline: 3px solid var(--accent-primary);
+  outline-offset: -3px;
+  z-index: 1;
+}
+
+/* Reset button needs its own padding when present */
+.section-header .reset-button {
+  margin-right: var(--space-5);
+}
+
+.collapsible-section.expanded .section-toggle-button {
   border-bottom: 1px solid var(--border-subtle);
   background: linear-gradient(90deg, rgba(0, 229, 255, 0.03) 0%, transparent 30%);
 }
@@ -121,7 +149,7 @@
   transition: transform 0.4s var(--ease-out-expo);
 }
 
-.section-header:hover .section-icon::after {
+.section-toggle-button:hover .section-icon::after {
   transform: translateX(100%);
 }
 
@@ -250,11 +278,11 @@
   transition: transform var(--transition-fast);
 }
 
-.section-header:hover .chevron svg {
+.section-toggle-button:hover .chevron svg {
   transform: translateY(2px);
 }
 
-.section-header:hover .chevron.up svg {
+.section-toggle-button:hover .chevron.up svg {
   transform: rotate(180deg) translateY(2px);
 }
 

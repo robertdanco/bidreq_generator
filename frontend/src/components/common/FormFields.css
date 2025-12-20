@@ -41,7 +41,7 @@
 
 .recommended-indicator {
   color: var(--accent-secondary);
-  font-size: 0.5625rem;
+  font-size: 0.6875rem;  /* Increased from 9px to 11px for readability */
   margin-left: 6px;
   padding: 2px 6px;
   background: var(--accent-secondary-glow);
@@ -85,7 +85,7 @@
 }
 
 .field-input::placeholder {
-  color: var(--text-muted);
+  color: var(--text-tertiary);  /* Improved contrast for WCAG AA */
   font-style: italic;
 }
 
@@ -130,7 +130,7 @@
 .field-help {
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);  /* Improved contrast for WCAG AA */
   line-height: 1.4;
   padding-left: var(--space-1);
   border-left: 2px solid var(--border-subtle);
@@ -140,7 +140,7 @@
 
 .field-error {
   font-family: var(--font-mono);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;  /* Increased from 11px to 12px for readability */
   color: var(--error);
   line-height: 1.4;
   padding: var(--space-1) var(--space-2);
@@ -151,9 +151,10 @@
   gap: var(--space-1);
 }
 
+/* Warning icon provides non-color indicator for errors */
 .field-error::before {
-  content: '!';
-  font-weight: 700;
+  content: '⚠';
+  font-size: 0.875rem;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -394,10 +395,36 @@ input[type="number"].field-input:focus {
               0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Checkmark icon provides non-color indicator for active state */
+.toggle-slider::after {
+  position: absolute;
+  content: '✓';
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--bg-void);
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: all var(--transition-base);
+}
+
+.toggle-input:checked + .toggle-slider::after {
+  left: 31px;
+  opacity: 1;
+}
+
 .toggle-input:disabled + .toggle-slider {
   background: var(--bg-deep);
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+/* Focus visible indicator for keyboard navigation */
+.toggle-input:focus-visible + .toggle-slider {
+  outline: 3px solid var(--accent-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 16px var(--accent-primary-glow);
 }
 
 .toggle-help {

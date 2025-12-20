@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import './FormFields.css';
 
 interface ToggleFieldProps {
@@ -18,22 +18,34 @@ export const ToggleField: React.FC<ToggleFieldProps> = ({
   disabled,
   className,
 }) => {
+  const uniqueId = useId();
+  const inputId = `toggle-${uniqueId}`;
+  const helpId = helpText ? `toggle-help-${uniqueId}` : undefined;
+
   return (
     <div className={`form-field toggle-field ${className || ''}`}>
-      <label className="toggle-container">
+      <label className="toggle-container" htmlFor={inputId}>
         <span className="toggle-label">{label}</span>
         <div className="toggle-wrapper">
           <input
+            id={inputId}
             type="checkbox"
             className="toggle-input"
             checked={value}
             onChange={(e) => onChange(e.target.checked)}
             disabled={disabled}
+            role="switch"
+            aria-checked={value}
+            aria-describedby={helpId}
           />
-          <span className="toggle-slider"></span>
+          <span className="toggle-slider" aria-hidden="true"></span>
         </div>
       </label>
-      {helpText && <span className="field-help toggle-help">{helpText}</span>}
+      {helpText && (
+        <span id={helpId} className="field-help toggle-help">
+          {helpText}
+        </span>
+      )}
     </div>
   );
 };

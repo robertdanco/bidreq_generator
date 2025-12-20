@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import './FormFields.css';
 
 interface NumberFieldProps {
@@ -34,6 +34,12 @@ export const NumberField: React.FC<NumberFieldProps> = ({
   className,
   suffix,
 }) => {
+  const uniqueId = useId();
+  const inputId = `number-${uniqueId}`;
+  const helpId = helpText && !error ? `number-help-${uniqueId}` : undefined;
+  const errorId = error ? `number-error-${uniqueId}` : undefined;
+  const describedBy = [helpId, errorId].filter(Boolean).join(' ') || undefined;
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val === '') {
@@ -50,13 +56,14 @@ export const NumberField: React.FC<NumberFieldProps> = ({
 
   return (
     <div className={`form-field ${className || ''} ${error ? 'has-error' : ''}`}>
-      <label className="field-label">
+      <label className="field-label" htmlFor={inputId}>
         {label}
-        {required && <span className="required-indicator">*</span>}
+        {required && <span className="required-indicator" aria-hidden="true">*</span>}
         {recommended && !required && <span className="recommended-indicator">recommended</span>}
       </label>
       <div className="field-input-wrapper">
         <input
+          id={inputId}
           type="number"
           className={inputClassName}
           value={value ?? ''}
@@ -67,11 +74,22 @@ export const NumberField: React.FC<NumberFieldProps> = ({
           step={step}
           disabled={disabled}
           required={required}
+          aria-required={required}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
         />
-        {suffix && <span className="field-suffix">{suffix}</span>}
+        {suffix && <span className="field-suffix" aria-hidden="true">{suffix}</span>}
       </div>
-      {helpText && !error && <span className="field-help">{helpText}</span>}
-      {error && <span className="field-error">{error}</span>}
+      {helpText && !error && (
+        <span id={helpId} className="field-help">
+          {helpText}
+        </span>
+      )}
+      {error && (
+        <span id={errorId} className="field-error" role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 };

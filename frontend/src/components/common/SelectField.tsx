@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import './FormFields.css';
 
 interface Option {
@@ -38,6 +38,12 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   allowEmpty = false,
   showMoreThreshold = 6,
 }) => {
+  const uniqueId = useId();
+  const selectId = `select-${uniqueId}`;
+  const helpId = helpText && !error ? `select-help-${uniqueId}` : undefined;
+  const errorId = error ? `select-error-${uniqueId}` : undefined;
+  const describedBy = [helpId, errorId].filter(Boolean).join(' ') || undefined;
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     // Try to parse as number if original value was a number
@@ -54,18 +60,22 @@ export const SelectField: React.FC<SelectFieldProps> = ({
 
   return (
     <div className={`form-field ${className || ''} ${error ? 'has-error' : ''}`}>
-      <label className="field-label">
+      <label className="field-label" htmlFor={selectId}>
         {label}
-        {required && <span className="required-indicator">*</span>}
+        {required && <span className="required-indicator" aria-hidden="true">*</span>}
         {recommended && !required && <span className="recommended-indicator">recommended</span>}
       </label>
       <div className="select-wrapper">
         <select
+          id={selectId}
           className={selectClassName}
           value={value}
           onChange={handleChange}
           disabled={disabled}
           required={required}
+          aria-required={required}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
         >
           {allowEmpty && <option value="">{placeholder}</option>}
           {options.map((opt) => (
@@ -75,15 +85,26 @@ export const SelectField: React.FC<SelectFieldProps> = ({
           ))}
         </select>
         {hasMoreOptions && (
-          <span className="options-count-badge" title={`${options.length} options available`}>
-            <span className="options-count-number">{options.length}</span>
-            <span className="options-count-label">options</span>
+          <span
+            className="options-count-badge"
+            aria-label={`${options.length} options available`}
+          >
+            <span className="options-count-number" aria-hidden="true">{options.length}</span>
+            <span className="options-count-label" aria-hidden="true">options</span>
             <span className="options-count-indicator" aria-hidden="true">↕</span>
           </span>
         )}
       </div>
-      {helpText && !error && <span className="field-help">{helpText}</span>}
-      {error && <span className="field-error">{error}</span>}
+      {helpText && !error && (
+        <span id={helpId} className="field-help">
+          {helpText}
+        </span>
+      )}
+      {error && (
+        <span id={errorId} className="field-error" role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 };

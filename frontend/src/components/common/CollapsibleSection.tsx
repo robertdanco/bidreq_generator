@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import './CollapsibleSection.css';
 
 interface CollapsibleSectionProps {
@@ -13,7 +13,7 @@ interface CollapsibleSectionProps {
 }
 
 export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
-  id: _id,
+  id,
   title,
   icon,
   isExpanded,
@@ -24,6 +24,8 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState<number | undefined>(undefined);
+  const uniqueId = useId();
+  const contentId = `${id}-content-${uniqueId}`;
 
   useEffect(() => {
     if (contentRef.current) {
@@ -31,39 +33,58 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     }
   }, [isExpanded, children]);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onToggle();
+    }
+  };
+
   return (
     <div className={`collapsible-section ${isExpanded ? 'expanded' : 'collapsed'}`}>
-      <div className="section-header" onClick={onToggle}>
-        <div className="section-title">
-          {icon && <div className="section-icon">{icon}</div>}
-          <h3>{title}</h3>
-          {badge !== undefined && <span className="section-badge">{badge}</span>}
-        </div>
-        <div className="section-actions">
-          {onReset && isExpanded && (
-            <button
-              type="button"
-              className="reset-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onReset();
-              }}
-              title="Reset to defaults"
-            >
-              Reset
-            </button>
-          )}
-          <span className={`chevron ${isExpanded ? 'up' : 'down'}`}>
+      <div className="section-header">
+        <button
+          type="button"
+          className="section-toggle-button"
+          onClick={onToggle}
+          onKeyDown={handleKeyDown}
+          aria-expanded={isExpanded}
+          aria-controls={contentId}
+        >
+          <div className="section-title">
+            {icon && <div className="section-icon" aria-hidden="true">{icon}</div>}
+            <h3>{title}</h3>
+            {badge !== undefined && (
+              <span className="section-badge" aria-label={`${badge} items`}>
+                {badge}
+              </span>
+            )}
+          </div>
+          <span className={`chevron ${isExpanded ? 'up' : 'down'}`} aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <path d="M4.427 5.427a.75.75 0 011.146 0L8 7.854l2.427-2.427a.75.75 0 111.146.965l-3 3a.75.75 0 01-1.146 0l-3-3a.75.75 0 010-.965z" />
             </svg>
           </span>
-        </div>
+        </button>
+        {onReset && isExpanded && (
+          <button
+            type="button"
+            className="reset-button"
+            onClick={onReset}
+            aria-label={`Reset ${title} to defaults`}
+          >
+            Reset
+          </button>
+        )}
       </div>
       <div
+        id={contentId}
         className="section-content"
         ref={contentRef}
         style={{ maxHeight: isExpanded ? contentHeight : 0 }}
+        role="region"
+        aria-labelledby={`${id}-heading-${uniqueId}`}
+        hidden={!isExpanded}
       >
         <div className="section-content-inner">{children}</div>
       </div>
